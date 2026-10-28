@@ -6,3 +6,10 @@
   [headers.values]
     X-Robots-Tag = "noindex"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# The Apps Script source lives in the repo for reference only; don't serve it.
+[[redirects]]
+  from = "/apps-script/*"
+  to = "/404"
+  status = 404
+  force = true

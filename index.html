@@ -1,2 +1,59 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Skid Row Diaries</title></head>
-<body style="margin:0;background:#080808"></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#080808">
+<title>Skid Row Diaries · Watch</title>
+<meta name="description" content="Stories from the street, in their own words.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@400;500&family=Playfair+Display:wght@700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="wordmark" href="https://skidrowdiaries.com" aria-label="Skid Row Diaries home">Skid Row Diaries</a>
+</header>
+
+<main>
+  <section class="intro">
+    <p class="label">Stories from the Street</p>
+    <h1>Three people from Skid Row, in their own words.</h1>
+    <p class="lede">Each one sat down with us in the tent at the Los Angeles Mission and told us what they have never said publicly. Watch them whole.</p>
+  </section>
+
+  <!-- Email gate: shown until we know who is watching -->
+  <section class="gate" id="gate" hidden>
+    <form id="gate-form" novalidate>
+      <label class="label" for="email">Enter your email to watch</label>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
+      <button type="submit">Watch</button>
+      <p class="error" id="gate-error" role="alert" hidden></p>
+      <p class="fine">We will email you when new stories are released. We also note which episodes you watch, so we know what matters to you.</p>
+    </form>
+  </section>
+
+  <!-- Episodes: filled from the list in app.js -->
+  <section class="episodes" id="episodes" aria-label="Episodes"></section>
+
+  <section class="outro" id="outro" hidden>
+    <p class="quote">If we can change the lens, we can change the system.</p>
+    <a class="action" href="https://www.instagram.com/skidrowdiaries/">Follow for the next story</a>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="foot-mark">Skid Row Diaries</p>
+  <p class="foot-line">Every subject is compensated for their time.</p>
+  <p class="foot-line"><a href="mailto:hello@skidrowdiaries.com">hello@skidrowdiaries.com</a></p>
+  <p class="foot-line signed" id="signed-as" hidden></p>
+</footer>
+
+<script src="https://player.vimeo.com/api/player.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
