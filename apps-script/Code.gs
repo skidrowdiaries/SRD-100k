@@ -22,12 +22,12 @@ function setup() {
   const ss = SpreadsheetApp.getActive();
   sheet_(ss, VIEWS, VIEW_HEADERS);
   sheet_(ss, SIGNUPS, SIGNUP_HEADERS);
-  // Loyal viewers: total minutes and videos per person, most engaged first.
+  // Loyal viewers: total seconds watched and videos per person, most engaged first.
   const lb = sheet_(ss, LEADERBOARD, []);
   lb.clear();
   lb.getRange('A1').setFormula(
-    "=QUERY(views!D2:L, \"select D, sum(H)/60, count(E), sum(L) where D is not null " +
-    "group by D order by sum(H) desc label D 'email', sum(H)/60 'minutes_watched', " +
+    "=QUERY(views!D2:L, \"select D, sum(H), count(E), sum(L) where D is not null " +
+    "group by D order by sum(H) desc label D 'email', sum(H) 'seconds_watched', " +
     "count(E) 'video_visits', sum(L) 'videos_finished'\", 0)");
 }
 
