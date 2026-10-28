@@ -23,6 +23,16 @@
 <body>
 <main>
   <h1>Player test · not public</h1>
+  <div id="params" style="border:2px solid var(--canary);padding:14px;margin:0 0 18px;font:600 18px/1.5 Inter,system-ui,sans-serif;word-break:break-all"></div>
+  <script>
+    (function(){
+      var q=new URLSearchParams(location.search), el=document.getElementById('params');
+      var c=q.get('c'), u=q.get('u');
+      el.textContent = 'Link received → c: ' + (c===null?'(none)':c) + ' | u: ' + (u===null?'(none)':u);
+      if (c && /^\d+$/.test(c)) el.textContent += '  ✔ placeholders filled in';
+      else if (c && c.indexOf('{{')>-1) el.textContent += '  ✘ placeholders NOT filled in';
+    })();
+  </script>
   <div class="frame">
     <iframe id="v" src="https://player.vimeo.com/video/1198533142?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
       allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
