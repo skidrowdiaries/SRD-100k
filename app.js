@@ -12,9 +12,9 @@
     heartbeatSeconds: 15,
     episodes: [
       // vimeo: the number from the Vimeo link. Swap these placeholders for the real three.
+      { vimeo: '1210983580', label: 'Episode 01', name: 'Michael Steger', line: 'A gentle giant.' },
       { vimeo: '1209284450', label: 'Episode 02', name: 'LaJeune McDonald', line: 'Angels among us.' },
-      { vimeo: '1210982273', label: 'Episode 04', name: 'Ronald Coulter', line: '“But I have memories.”' },
-      { vimeo: '1198533142', label: 'Episode 03', name: 'Name Three', line: 'Placeholder line about the third person.' }
+      { vimeo: '1210982273', label: 'Episode 04', name: 'Ronald Coulter', line: '“But I have memories.”' }
     ]
   };
 
