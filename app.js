@@ -8,7 +8,7 @@
   const CONFIG = {
     // Paste the Google Apps Script web app URL here (ends in /exec).
     // While empty, nothing is sent and events are only printed to the browser console.
-    endpoint: '',
+    endpoint: 'https://script.google.com/macros/s/AKfycbwLT8cMZgfye1NIlQX2oN-XOovgOFSzUnvX8DrCimFST18ggHnVrwaPtbpgqEePmPDX/exec',
     heartbeatSeconds: 15,
     episodes: [
       // vimeo: the number from the Vimeo link. Swap these placeholders for the real three.
