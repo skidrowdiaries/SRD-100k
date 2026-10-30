@@ -16,7 +16,7 @@
  * To swap an episode: change EPISODES below (order = column order on Viewers), save, run `setup`, redeploy.
  */
 
-const VERSION = 2;
+const VERSION = 3;
 const TZ = 'America/Los_Angeles';
 
 const EPISODES = [
@@ -128,7 +128,9 @@ function handle_(d) {
   const V = sheet_(ss, T.VIEWERS, viewerHeaders_());
   const vr = findOrCreateViewer_(V, ctx, now);
   if (!vr) return;                                      // no email and no Inro ID: nothing to attach it to
-  const key = vr.key;
+  const key = vr.key, cur = vr.values;
+  const H = viewerHeaders_();
+  const at = (n) => H.indexOf(n);
 
   switch (type) {
     case 'signup':
@@ -136,11 +138,11 @@ function handle_(d) {
       log_(ss, now, key, type, null, d, '', ctx);
       break;
     case 'visit':
-      bump_(V, vr.row, 'visits', 1);
+      cur[at('visits')] = num_(cur[at('visits')]) + 1;
       log_(ss, now, key, type, null, d, '', ctx);
       break;
     case 'link_click':
-      bump_(V, vr.row, 'link_clicks', 1);
+      cur[at('link_clicks')] = num_(cur[at('link_clicks')]) + 1;
       log_(ss, now, key, type, null, d, clip_(d.link, 120), ctx);
       break;
     case 'start':
@@ -148,25 +150,26 @@ function handle_(d) {
     case 'pause':
     case 'leave':
     case 'complete':
-    case 'milestone':
     case 'error': {
       if (!d.video_id) break;
-      const crossed = upsertWatch_(ss, key, d, ep, ctx, now, type);
+      const crossed = upsertWatch_(ss, key, d, ep, ctx, now);
       if (type === 'start') {
         log_(ss, now, key, 'start', ep, d, '', ctx);
-        setIfEmpty_(V, vr.row, 'first_episode', ep ? ep.name : clip_(d.video_title, 80));
+        if (!cur[at('first_episode')]) cur[at('first_episode')] = ep ? ep.name : clip_(d.video_title, 80);
       }
+      if (type === 'complete') log_(ss, now, key, 'reached_end', ep, d, '', ctx);
       crossed.forEach((m) => log_(ss, now, key, m === 'finished' ? 'finished' : 'milestone', ep, d,
         m === 'finished' ? '' : m + '%', ctx));
       if (type === 'error') log_(ss, now, key, 'error', ep, d, clip_(d.error, 120), ctx);
-      recomputeViewer_(ss, V, vr.row, key);
+      recomputeViewer_(ss, cur, key);
       break;
     }
     default:
       log_(ss, now, key, type || 'unknown', ep, d, '', ctx);
   }
-  setCell_(V, vr.row, 'last_seen', now);
-  if (ctx.device) setCell_(V, vr.row, 'device', ctx.device);
+  cur[at('last_seen')] = now;
+  if (ctx.device) cur[at('device')] = ctx.device;
+  V.getRange(vr.row, 1, 1, H.length).setValues([cur]);   // one write per event
   if (type !== 'progress') refreshSummary_(false);
 }
 
@@ -196,12 +199,12 @@ function findOrCreateViewer_(V, ctx, now) {
     r[col('inro_id') - 1] = ctx.inro;
     r[col('key') - 1] = ctx.email || 'inro:' + ctx.inro;
     V.appendRow(r);
-    return { row: V.getLastRow(), key: r[col('key') - 1] };
+    return { row: V.getLastRow(), key: r[col('key') - 1], values: r };
   }
 
   // Known person: fill in anything we learn later (an Inro viewer who gives an email, a first name, a handle).
   const cur = V.getRange(row, 1, 1, H.length).getValues()[0];
-  const fill = (name, val) => { if (val && !cur[col(name) - 1]) { V.getRange(row, col(name)).setValue(val); cur[col(name) - 1] = val; } };
+  const fill = (name, val) => { if (val && !cur[col(name) - 1]) cur[col(name) - 1] = val; };
   fill('first_name', ctx.first);
   fill('email', ctx.email);
   fill('instagram', ctx.handle);
@@ -212,13 +215,13 @@ function findOrCreateViewer_(V, ctx, now) {
     // They were known only by Inro ID; from now on the email is their key. Move their watch rows over.
     rekeyWatch_(SpreadsheetApp.getActive(), key, ctx.email);
     key = ctx.email;
-    V.getRange(row, col('key')).setValue(key);
+    cur[col('key') - 1] = key;
   }
-  return { row: row, key: key };
+  return { row: row, key: key, values: cur };
 }
 
 /** Running totals for one person, one episode, one visit. Returns milestones crossed by this update. */
-function upsertWatch_(ss, viewer, d, ep, ctx, now, type) {
+function upsertWatch_(ss, viewer, d, ep, ctx, now) {
   const W = sheet_(ss, T.WATCH, WATCH_HEADERS);
   const key = [viewer, d.video_id, ctx.session].join('|');
   const watched = num_(d.watched), uniq = num_(d.unique), furthest = num_(d.furthest), len = num_(d.duration);
@@ -232,7 +235,7 @@ function upsertWatch_(ss, viewer, d, ep, ctx, now, type) {
   const L = len || (prev ? num_(prev[10]) : 0);
   const cov = L ? Math.min(1, u / L) : 0;
   const wasDone = prev ? prev[12] === 'yes' : false;
-  const done = wasDone || type === 'complete' || cov >= FINISHED_AT;
+  const done = wasDone || cov >= FINISHED_AT;          // skipping to the end doesn't count as finishing
   const prevM = prev ? num_(prev[13]) : 0;
   const m = MILESTONES.filter((x) => cov * 100 >= x).pop() || 0;
   const best = Math.max(prevM, m);
@@ -248,29 +251,27 @@ function upsertWatch_(ss, viewer, d, ep, ctx, now, type) {
   return crossed;
 }
 
-/** Rebuild one person's episode columns, totals and tier from their Watch rows. */
-function recomputeViewer_(ss, V, row, key) {
+/** Rebuild one person's episode columns, totals and tier from their Watch rows (in memory). */
+function recomputeViewer_(ss, cur, key) {
   const H = viewerHeaders_();
-  const col = (n) => H.indexOf(n) + 1;
-  const rows = watchRowsFor_(ss, key);
+  const at = (n) => H.indexOf(n);
+  const rows = data_(ss, T.WATCH).filter((r) => r[1] === key);
   let total = 0, finished = 0, startedAny = false;
-  const out = [];
-  EPISODES.forEach((e) => {
+  EPISODES.forEach((e, i) => {
     const mine = rows.filter((r) => String(r[2]) === e.id);
     const secs = mine.reduce((a, r) => a + num_(r[7]), 0);
     const cov = mine.reduce((a, r) => Math.max(a, num_(r[11])), 0);
-    const done = mine.some((r) => r[12] === 'yes');
+    if (mine.some((r) => r[12] === 'yes')) finished++;
     total += secs;
-    if (done) finished++;
     if (secs > 0) startedAny = true;
-    out.push(Math.round(secs / 6) / 10, cov);
+    cur[VIEWER_BASE.length + i * 2] = Math.round(secs / 6) / 10;
+    cur[VIEWER_BASE.length + i * 2 + 1] = cov;
   });
   const all = finished === EPISODES.length;
-  const tier = all ? 'Superfan' : finished >= 1 ? 'Engaged' : startedAny ? 'Sampler' : 'Signed up only';
-  V.getRange(row, col('total_watch_min')).setValue(Math.round(total / 6) / 10);
-  V.getRange(row, VIEWER_BASE.length + 1, 1, out.length).setValues([out]);
-  V.getRange(row, col('episodes_finished'), 1, 2).setValues([[finished, all ? 'yes' : 'no']]);
-  V.getRange(row, col('tier')).setValue(tier);
+  cur[at('total_watch_min')] = Math.round(total / 6) / 10;
+  cur[at('episodes_finished')] = finished;
+  cur[at('watched_all')] = all ? 'yes' : 'no';
+  cur[at('tier')] = all ? 'Superfan' : finished >= 1 ? 'Engaged' : startedAny ? 'Sampler' : 'Signed up only';
 }
 
 // ---------------------------------------------------------------- Episodes tab and ranking
@@ -438,12 +439,6 @@ function log_(ss, now, viewer, event, ep, d, detail, ctx) {
     ctx.source, ctx.pathway || (ctx.inro ? 'instagram' : ctx.email ? 'website' : ''), ctx.device,
     Number(Utilities.formatDate(now, TZ, 'H')), ctx.session, ctx.page]);
 }
-function watchRowsFor_(ss, key) {
-  const W = ss.getSheetByName(T.WATCH);
-  if (!W || W.getLastRow() < 2) return [];
-  const hits = W.getRange(2, 2, W.getLastRow() - 1, 1).createTextFinder(key).matchEntireCell(true).findAll();
-  return hits.map((h) => W.getRange(h.getRow(), 1, 1, WATCH_HEADERS.length).getValues()[0]);
-}
 function rekeyWatch_(ss, from, to) {
   const W = ss.getSheetByName(T.WATCH);
   if (!W || W.getLastRow() < 2) return;
@@ -458,16 +453,6 @@ function findRow_(sh, col, value) {
   if (!value || sh.getLastRow() < 2) return 0;
   const hit = sh.getRange(2, col, sh.getLastRow() - 1, 1).createTextFinder(String(value)).matchEntireCell(true).findNext();
   return hit ? hit.getRow() : 0;
-}
-function bump_(V, row, name, by) {
-  const c = viewerHeaders_().indexOf(name) + 1;
-  const cell = V.getRange(row, c);
-  cell.setValue(num_(cell.getValue()) + by);
-}
-function setCell_(V, row, name, val) { V.getRange(row, viewerHeaders_().indexOf(name) + 1).setValue(val); }
-function setIfEmpty_(V, row, name, val) {
-  const cell = V.getRange(row, viewerHeaders_().indexOf(name) + 1);
-  if (!cell.getValue() && val) cell.setValue(val);
 }
 function data_(ss, name) {
   const sh = ss.getSheetByName(name);
