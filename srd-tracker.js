@@ -18,7 +18,7 @@
 
   var cfg = {
     endpoint: 'https://script.google.com/macros/s/AKfycbwLT8cMZgfye1NIlQX2oN-XOovgOFSzUnvX8DrCimFST18ggHnVrwaPtbpgqEePmPDX/exec',
-    heartbeatSeconds: 20,
+    heartbeatSeconds: 60,          // running totals; pause, leave and the end also report, so nothing between beats is lost
     debug: false
   };
   var KEY = 'srd_viewer';
