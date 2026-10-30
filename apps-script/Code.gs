@@ -16,7 +16,7 @@
  * To swap an episode: change EPISODES below (order = column order on Viewers), save, run `setup`, redeploy.
  */
 
-const VERSION = 3;
+const VERSION = 4;
 const TZ = 'America/Los_Angeles';
 
 const EPISODES = [
@@ -370,6 +370,8 @@ function refreshSummary_(force) {
   E.getRange(2, 5, n, 1).setNumberFormat('0%');
   E.getRange(2, 7, n, 1).setNumberFormat('0%');
   E.getRange(2, 11, n, 1).setNumberFormat('0%');
+  E.getRange(2, 2, rows.length - 1, 1).setNumberFormat('0');
+  E.setColumnWidth(1, 240);
   rows.forEach((r, i) => {
     if (/^(SUMMARY|PLAYS|VIEWERS BY|LINK CLICKS)/.test(String(r[0]))) E.getRange(i + 1, 1).setFontWeight('bold');
     if (/conversion|rate|mobile/i.test(String(r[0]))) E.getRange(i + 1, 2).setNumberFormat('0%');
