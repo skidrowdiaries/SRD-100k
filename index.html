@@ -29,11 +29,14 @@
   <!-- Email gate: shown until we know who is watching -->
   <section class="gate" id="gate" hidden>
     <form id="gate-form" novalidate>
-      <label class="label" for="email">Enter your email to watch</label>
+      <p class="label">Enter your name and email to watch</p>
+      <label class="sr" for="first">First name</label>
+      <input id="first" name="first_name" type="text" autocomplete="given-name" placeholder="First name" required>
+      <label class="sr" for="email">Email</label>
       <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
       <button type="submit">Watch</button>
       <p class="error" id="gate-error" role="alert" hidden></p>
-      <p class="fine">We will email you when new stories are released. We also note which episodes you watch, so we know what matters to you.</p>
+      <p class="fine">We will email you when new stories are released, and we note which episodes you watch so we know what matters to you. By continuing you agree to our Privacy Policy.</p>
     </form>
   </section>
 
@@ -42,7 +45,7 @@
 
   <section class="outro" id="outro" hidden>
     <p class="quote">If we can change the lens, we can change the system.</p>
-    <a class="action" href="https://www.instagram.com/skidrowdiaries/">Follow for the next story</a>
+    <a class="action" data-srd-link="instagram" href="https://www.instagram.com/skidrowdiaries/">Follow for the next story</a>
   </section>
 </main>
 
@@ -53,7 +56,7 @@
   <p class="foot-line signed" id="signed-as" hidden></p>
 </footer>
 
-<script src="https://player.vimeo.com/api/player.js"></script>
+<script src="srd-tracker.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
