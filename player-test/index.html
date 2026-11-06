@@ -76,7 +76,7 @@
 
   /* The still. Every touch passes through it to the frame beneath, which is what gives a film its sound on an iPhone. */
   .card { position: absolute; inset: -1px; overflow: hidden; background: var(--black); container-type: inline-size; pointer-events: none; }
-  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; translate: 0 -4%; } /* the faces have headroom, so they sit a little higher to clear the quote */
   .type { position: absolute; inset: 0; }
   .scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 66%; background: linear-gradient(0deg, rgb(8 8 8 / 0.9) 0%, rgb(8 8 8 / 0.72) 42%, rgb(8 8 8 / 0) 100%); }
   .no { position: absolute; right: 7cqw; top: 6cqw; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8cqw; text-shadow: 0 1px 12px rgb(0 0 0 / 0.6); }
@@ -85,7 +85,8 @@
   .txt { position: absolute; left: 7cqw; right: 7cqw; bottom: 7cqw; display: flex; flex-direction: column; align-items: flex-start; }
   .words { hanging-punctuation: first; margin: 0 0 2.4cqw; font-style: italic; font-size: max(17px, 7.2cqw); line-height: 1.16; color: var(--ink); transform-origin: 0 100%; text-wrap: pretty; }
   .nm { margin: 0 0 3.6cqw; font-family: var(--display); font-weight: 700; font-size: 7.4cqw; line-height: 1.1; color: var(--canary-ink); white-space: nowrap; }
-  .btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px; font-weight: 600; font-size: 17px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--canary); }
+  /* The whole card is the tap target, so on a small phone this sign can give up height to keep the quote off the face. */
+  .btn { display: flex; align-items: center; justify-content: center; width: 100%; height: clamp(40px, 18cqw, 56px); font-weight: 600; font-size: 17px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--canary); }
 
   /* After a film has started once, or on a computer, a press belongs to us. */
   .hit { position: absolute; inset: 0; z-index: 2; display: none; background: none; border: 0; padding: 0; cursor: pointer; }
