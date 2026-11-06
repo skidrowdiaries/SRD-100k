@@ -201,11 +201,9 @@
     gsap.to(line, { opacity: 1, duration: 0.3, delay: 1 })
     slot.classList.add('live')
     slot.querySelector('.surface').onclick = async () => { (await p.getPaused()) ? p.play() : p.pause() }
-    // Michael's film opens on a title over black, so move to a moving picture for the words.
-    if (i === 0) p.setCurrentTime(40).catch(() => {})
     setTimeout(async () => { try { rec.mutedAtStart = await p.getMuted(); rec.volume = await p.getVolume() } catch {} }, 1000)
 
-    let firstAt = 0, last = 0, n = 0, gap = 0, shown = false, hidden = false, finished = false
+    let firstAt = 0, last = 0, n = 0, gap = 0, shown = false, hidden = false, finished = false, jumped = false
     const wrap = async () => {
       if (finished) return
       finished = true
@@ -230,6 +228,9 @@
       last = now; n++
       if (d.duration) fill.style.transform = `scaleX(${d.seconds / d.duration})`
       const el = (now - firstAt) / 1000
+      // Michael's film opens on a title over black, so move to a moving picture for the words.
+      // Only once the film is really running: a jump in the first instant stops it starting at all.
+      if (i === 0 && !jumped && el >= 1) { jumped = true; p.setCurrentTime(40).catch(() => {}) }
       if (!shown && el >= WORDS_AT) {
         shown = true
         gsap.to(veil, { opacity: 1, duration: 0.5, ease: 'none' })
