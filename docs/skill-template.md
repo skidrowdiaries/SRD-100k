@@ -79,7 +79,7 @@ If the site sends a Content-Security-Policy, allow: `script-src https://player.v
 ```js
 SRD.isKnown()                         // true if we know who this is (email or Inro ID)
 SRD.viewer()                          // { email, first_name, inro_id, ig_handle, source, pathway } or null
-SRD.signup({ first_name, email, form })  // validates, remembers, logs. Returns { ok: true } or { ok: false, error: 'first_name' | 'email' }
+SRD.signup({ first_name, email, source })  // validates, remembers, logs. Returns { ok: true } or { ok: false, error: 'first_name' | 'email' }
 SRD.gateShown()                       // call when the form is shown to an unknown visitor (gate conversion)
 SRD.attachAll(rootElement)            // start tracking every iframe[data-srd-video] inside root
 SRD.attach(iframe)                    // same, one iframe (safe to call twice)
@@ -118,7 +118,7 @@ on load (client only; localStorage doesn't exist on the server):
   else:              render the 3 episodes locked (poster/still, no iframe), show the form, call SRD.gateShown()
 
 form submit:
-  r = SRD.signup({ first_name, email, form: 'watch' })
+  r = SRD.signup({ first_name, email })
   if !r.ok: show the error for r.error ('first_name' → "Please add your first name.", 'email' → "Please enter a full email address.")
   else:     hide the form, render the iframes, SRD.attachAll(list), scroll to the first episode
 
@@ -134,7 +134,7 @@ form submit:
 ### 5. Homepage entry points
 
 - **Section B** ("Full Episodes…") becomes three episode cards (still, name, one line) and one button to `/watch?src=home-b`. Copy says the episodes are out now, not "streaming soon".
-- **Footer "Never Miss a Story" form**: on submit call `SRD.signup({ first_name, email, form: 'home-footer' })`. If it's ok, go to `/watch` (the visitor is already known, so the episodes are unlocked). Make first name required here too, so every row on the sheet has a name. Remove the Web3Forms submission from this form, or keep it in addition. Patrick decides; the sheet is now the list.
+- **Footer "Never Miss a Story" form**: on submit call `SRD.signup({ first_name, email, source: 'home-footer' })` (`source` only applies if the visitor has no earlier source tag). If it's ok, go to `/watch` (the visitor is already known, so the episodes are unlocked). Make first name required here too, so every row on the sheet has a name. Remove the Web3Forms submission from this form, or keep it in addition. Patrick decides; the sheet is now the list.
 - Put `?src=` tags on every link to `/watch` you create, from this list (lowercase, hyphenated): `home-b`, `home-footer`, `ig-bio`, `ig-dm`, `ig-story`, `newsletter`, `press`. New tags are fine. They appear as-is under VIEWERS BY SOURCE.
 
 ### 6. React, GSAP and Framer Motion: the traps
