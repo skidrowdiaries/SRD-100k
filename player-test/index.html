@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Skid Row Diaries phone test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@700&display=swap">
+<style>
+  /* A real-device proof for the Row player, with the three final episodes on an address Vimeo already allows.
+     It answers three questions on a real phone: does the row swipe, what starts a film, and do words float over it.
+     Nothing is sent to the viewer sheet and no identity is stored. The last screen shows the results for a screenshot. */
+  :root { --ground: #0f0f0e; --black: #080808; --ink: #f2efe8; --muted: rgb(242 239 232 / 0.7); --line: rgb(242 239 232 / 0.14); --canary: #fdf990; --canary-ink: #fdf98d; --body: "EB Garamond", Garamond, Georgia, serif; --display: "Playfair Display", Georgia, serif; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; color: var(--ink); font-family: var(--body); font-size: 19px; line-height: 1.35; -webkit-font-smoothing: antialiased; overflow: hidden; }
+  main { position: fixed; inset: 0; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .top { position: relative; z-index: 2; padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .step { margin: 0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2em; font-size: 14px; color: var(--muted); }
+  .say { margin: 0; font-weight: 600; font-size: 25px; line-height: 1.16; color: var(--canary-ink); min-height: 3.48em; text-wrap: balance; }
+  .rail { position: relative; z-index: 3; display: flex; gap: 12px; flex: none; padding-inline: 16px; overflow-x: auto; scrollbar-width: none; transform-origin: 0 0; -webkit-overflow-scrolling: touch; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail.in { overflow: hidden; }
+  .slot { position: relative; flex: none; width: var(--cw); height: calc(var(--cw) * 16 / 9); background: var(--black); }
+  .film { position: absolute; inset: 0; overflow: hidden; background: var(--black); }
+  .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  /* The card lets every touch through to the Vimeo frame beneath it. */
+  .card { position: absolute; inset: -1px; background: var(--black); container-type: inline-size; overflow: hidden; pointer-events: none; }
+  .print { position: absolute; left: 12.5cqw; top: 25cqw; width: 75cqw; aspect-ratio: 4 / 5; overflow: hidden; transform-origin: 50% 42%; }
+  .print img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--ox, 50%) 30%; display: block; }
+  .no { position: absolute; right: 12.5cqw; top: 6cqw; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8cqw; }
+  .no small { font-weight: 500; font-size: max(11px, 2.7cqw); line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-right: -0.2em; }
+  .no b { font-family: var(--display); font-weight: 700; font-size: 9.5cqw; line-height: 1; color: var(--canary-ink); }
+  .nm { position: absolute; left: 12.5cqw; right: 8cqw; top: 124cqw; margin: 0; font-family: var(--display); font-weight: 700; font-size: 10.4cqw; line-height: 1.1; color: var(--canary-ink); white-space: nowrap; }
+  .ln { position: absolute; left: 12.5cqw; right: 12.5cqw; top: 138cqw; margin: 0; font-style: italic; color: var(--muted); font-size: clamp(16px, 5.2cqw, 24px); line-height: 1.25; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; font-size: 16px; line-height: 1; color: var(--black); background: var(--canary); border: 0; padding: 0 28px; min-height: 56px; cursor: pointer; border-radius: 0; }
+  /* Play sits over the centre of the portrait, clear of Vimeo's bar along the bottom of the frame. */
+  .slot .btn { position: absolute; left: 50%; top: 47%; translate: -50% -50%; z-index: 2; }
+  .slot .btn.paint { pointer-events: none; }
+  .surface { position: absolute; inset: 0; z-index: 3; display: none; background: none; border: 0; padding: 0; }
+  .slot.live .surface { display: block; }
+  .dark { position: absolute; inset: 0; z-index: 1; background: var(--black); opacity: 0; pointer-events: none; }
+  /* The words, drawn above everything. They ride over the moving film as an ordinary page layer. */
+  .veil { position: absolute; inset: 0; z-index: 8; background: rgb(8 8 8 / 0.34); opacity: 0; pointer-events: none; }
+  .words { position: absolute; z-index: 9; left: 8vw; right: 8vw; top: 37%; margin: 0; text-align: center; text-wrap: balance; font-style: italic; font-size: clamp(25px, 7vw, 34px); line-height: 1.22; color: var(--ink); text-shadow: 0 2px 20px rgb(0 0 0 / 0.65); opacity: 0; pointer-events: none; }
+  .line { position: absolute; z-index: 9; left: 0; right: 0; bottom: var(--fb, 0px); height: 2px; background: rgb(242 239 232 / 0.22); opacity: 0; pointer-events: none; }
+  .line i { position: absolute; inset: 0; background: var(--canary); transform-origin: 0 50%; transform: scaleX(0); }
+  .skip { position: relative; z-index: 2; margin-top: auto; padding: 8px 16px 12px; }
+  .skip button { font: inherit; color: var(--canary-ink); background: none; border: 0; padding: 0; min-height: 44px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .ask { position: absolute; z-index: 20; inset: 0; background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; display: none; flex-direction: column; justify-content: center; gap: 14px; overflow-y: auto; padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .ask.on { display: flex; }
+  .ask h1 { margin: 0; font-weight: 600; font-size: 28px; line-height: 1.14; text-wrap: balance; }
+  .ask p { margin: 0; color: var(--muted); }
+  .ask .opts { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .ask .btn { width: 100%; }
+  .ask .alt { background: none; color: var(--ink); border: 1px solid var(--line); text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 19px; }
+  .res { margin: 2px 0 0; display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 5px 12px; font-size: 16px; line-height: 1.22; }
+  .res dt { color: var(--muted); }
+  .res dd { margin: 0; color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+<main id="main">
+  <div class="dark" id="dark"></div>
+  <div class="top" id="top">
+    <p class="step" id="step">Phone test · Step 1 of 3</p>
+    <p class="say" id="say">Swipe this row sideways with your thumb, starting on a portrait.</p>
+  </div>
+  <div class="rail" id="rail">
+    <article class="slot" data-i="0">
+      <div class="film"><iframe src="https://player.vimeo.com/video/1243879941?badge=0&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;dnt=1&amp;controls=0" data-srd-video="1243879941" data-srd-title="Michael Steger" title="Michael Steger" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <div class="card"><div class="print" style="--ox:50%"><img src="img/michael.webp" alt="Portrait of Michael Steger."></div><div class="no"><small>Episode</small><b>01</b></div><p class="nm">Michael Steger</p><p class="ln">A gentle giant.</p></div>
+      <button class="btn" id="playA" type="button" hidden>Play</button>
+      <button class="surface" type="button" aria-label="Pause or play"></button>
+    </article>
+    <article class="slot" data-i="1">
+      <div class="film"><iframe src="https://player.vimeo.com/video/1243884159?badge=0&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;dnt=1" data-srd-video="1243884159" data-srd-title="Whitney Wiley" title="Whitney Wiley" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <div class="card"><div class="print" style="--ox:52%"><img src="img/whitney.webp" alt="Portrait of Whitney Wiley."></div><div class="no"><small>Episode</small><b>02</b></div><p class="nm">Whitney Wiley</p></div>
+      <span class="btn paint" id="playB" hidden>Play</span>
+      <button class="surface" type="button" aria-label="Pause or play"></button>
+    </article>
+    <article class="slot" data-i="2">
+      <div class="film"><iframe src="https://player.vimeo.com/video/1243931242?badge=0&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;dnt=1" data-srd-video="1243931242" data-srd-title="Ronald Coulter" title="Ronald Coulter" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <div class="card"><div class="print" style="--ox:38%"><img src="img/ronald.webp" alt="Portrait of Ronald Coulter."></div><div class="no"><small>Episode</small><b>03</b></div><p class="nm">Ronald Coulter</p><p class="ln">“But I have memories.”</p></div>
+    </article>
+  </div>
+  <div class="veil" id="veil"></div>
+  <p class="words" id="words">Someone’s own words float here, over the moving film.</p>
+  <div class="line" id="line"><i id="fill"></i></div>
+  <div class="skip" id="skipw" hidden><button type="button" id="skip">It won’t work. Move on.</button></div>
+  <div class="ask" id="ask"></div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+<script src="../srd-tracker.js"></script>
+<script>
+  // Nothing reaches the sheet: the endpoint is blanked before anything can send, and no sign-up is made, so no identity is saved on this phone.
+  SRD.configure({ endpoint: '' })
+
+  const $ = q => document.querySelector(q), $$ = q => [...document.querySelectorAll(q)]
+  const rail = $('#rail'), slots = $$('.slot'), say = $('#say'), step = $('#step')
+  const FILM_SECONDS = 9, WORDS_AT = 2.5, WORDS_TO = 7
+  const R = { swipe: {}, A: {}, B: {}, loads: [0, 0, 0], embed: 'Not checked', errors: [] }
+  addEventListener('error', e => R.errors.push(String(e.message).slice(0, 120)))
+  addEventListener('unhandledrejection', e => R.errors.push(String(e.reason && (e.reason.name || e.reason)).slice(0, 120)))
+  const EASE = (() => { const A = (a, b) => 1 - 3 * b + 3 * a, B = (a, b) => 3 * b - 6 * a, C = a => 3 * a, f = (t, a, b) => ((A(a, b) * t + B(a, b)) * t + C(a)) * t, d = (t, a, b) => 3 * A(a, b) * t * t + 2 * B(a, b) * t + C(a); return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 6; i++) { const s = d(t, 0.16, 0.3); if (Math.abs(s) < 1e-5) break; t -= (f(t, 0.16, 0.3) - x) / s } return f(t, 1, 1) } })()
+
+  // Sizes: the same phone row as Round 1, fitted to the room this browser leaves.
+  const W = innerWidth, H = innerHeight
+  const avail = H - $('#top').offsetHeight - 70
+  const cw = Math.round(Math.min(W * 0.76, avail * 9 / 16))
+  document.documentElement.style.setProperty('--cw', cw + 'px')
+  const ch = cw * 16 / 9, fh = Math.min(H, W * 16 / 9)
+  document.documentElement.style.setProperty('--fb', (H - fh) / 2 + 'px')
+
+  const target = i => {
+    const s = Math.min(H / ch, W / cw), sl = slots[i]
+    const left = Math.max(0, Math.min(sl.offsetLeft - (rail.clientWidth - cw) / 2, rail.scrollWidth - rail.clientWidth))
+    return { x: W / 2 - (sl.offsetLeft - left + cw / 2) * s, y: H / 2 - rail.offsetTop - (ch / 2) * s, scale: s, scrollLeft: left }
+  }
+
+  $$('iframe').forEach((f, i) => f.addEventListener('load', () => R.loads[i]++))
+  const ready = new Promise(r => { const t = setInterval(() => { if (SRD.players.length === 3) { clearInterval(t); r() } }, 60) })
+  SRD.attachAll(rail)
+  // Does Vimeo accept these films on this page, in this browser?
+  ready.then(async () => {
+    const left = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('no reply')), ms))])
+    const got = await Promise.all(SRD.players.map(t => left(t.player.getDuration(), 9000).then(d => d > 0).catch(() => false)))
+    R.embed = `${got.filter(Boolean).length} of 3`
+  })
+
+  /* Step 1: the row. Touches land on the Vimeo frames, because the cards let them through, so this proves whether a swipe still moves the page. */
+  let stage = 'swipe', furthest = 0
+  rail.addEventListener('scroll', () => {
+    furthest = Math.max(furthest, rail.scrollLeft)
+    if (stage === 'swipe' && furthest > 70) { stage = 'swiped'; R.swipe.worked = true; setTimeout(stepA, 700) }
+  }, { passive: true })
+  const swipeNudge = setTimeout(() => { if (stage === 'swipe') $('#skipw').hidden = false }, 9000)
+  $('#skip').addEventListener('click', () => {
+    $('#skipw').hidden = true
+    if (stage === 'swipe') { stage = 'swiped'; R.swipe.worked = false; stepA() }
+    else if (stage === 'a') { R.A.started = false; R.A.note = 'moved on'; stepB() }
+    else if (stage === 'b') { R.B.started = false; R.B.note = 'moved on'; ask(0) }
+  })
+
+  /* Step 2: our own Play button, calling Vimeo from outside its frame, with Vimeo's controls off. If an iPhone allows this, the phone is fully custom. */
+  async function stepA() {
+    clearTimeout(swipeNudge)
+    stage = 'a'
+    $('#skipw').hidden = true
+    rail.scrollTo({ left: 0, behavior: 'smooth' })
+    step.textContent = 'Phone test · Step 2 of 3'
+    say.textContent = 'Take your phone off silent, turn the sound up, then tap Play on Michael.'
+    await ready
+    const b = $('#playA'); b.hidden = false
+    b.addEventListener('click', () => {
+      if (R.A.tapped) return
+      R.A.tapped = true
+      b.hidden = true
+      const p = SRD.players[0].player, t0 = performance.now()
+      let done = false
+      const go = () => { if (done) return; done = true; R.A.started = true; R.A.ms = Math.round(performance.now() - t0); p.off('play', go); film(0, R.A, stepB) }
+      p.on('play', go)
+      p.play().then(() => { R.A.playPromise = 'ok' }).catch(e => { R.A.playPromise = e.name || 'error' })
+      setTimeout(() => { if (!done) { done = true; R.A.started = false; p.off('play', go); say.textContent = 'That one didn’t start. That tells me what I need.'; setTimeout(stepB, 2000) } }, 7000)
+    })
+    setTimeout(() => { if (stage === 'a' && !R.A.tapped) $('#skipw').hidden = false }, 20000)
+  }
+
+  /* Step 3: Vimeo's controls on, our card over them, and the tap going straight through to Vimeo. */
+  async function stepB() {
+    stage = 'b'
+    $('#skipw').hidden = true
+    step.textContent = 'Phone test · Step 3 of 3'
+    say.textContent = 'Now tap Play on Whitney.'
+    gsap.to(rail, { scrollLeft: target(1).scrollLeft, duration: 0.5, ease: EASE })
+    await ready
+    $('#playB').hidden = false
+    const p = SRD.players[1].player
+    let done = false
+    const go = () => { if (done) return; done = true; $('#playB').hidden = true; R.B.started = true; p.off('play', go); film(1, R.B, () => ask(0)) }
+    p.on('play', go)
+    setTimeout(() => { if (!done && stage === 'b') $('#skipw').hidden = false }, 14000)
+  }
+
+  /* A film running: the camera pushes in, the card clears, the words float over the moving picture, then every control is checked from outside the frame. */
+  function film(i, rec, then) {
+    const slot = slots[i], p = SRD.players[i].player, card = slot.querySelector('.card'), print = slot.querySelector('.print')
+    const words = $('#words'), veil = $('#veil'), line = $('#line'), fill = $('#fill')
+    say.textContent = ''
+    rail.classList.add('in')
+    gsap.to(rail, { ...target(i), duration: 1.8, ease: EASE })
+    gsap.to($('#top'), { opacity: 0, duration: 0.24 })
+    gsap.to($('#dark'), { opacity: 1, duration: 0.7, ease: 'none' })
+    slots.forEach((s, j) => gsap.to(s, { opacity: j === i ? 1 : 0.2, duration: 0.7, ease: 'none' }))
+    gsap.to(print, { scale: 1.36, duration: 1.8, ease: EASE })
+    gsap.to(card, { opacity: 0, duration: 0.7, delay: 0.6, ease: 'none' })
+    gsap.to(line, { opacity: 1, duration: 0.3, delay: 1 })
+    slot.classList.add('live')
+    slot.querySelector('.surface').onclick = async () => { (await p.getPaused()) ? p.play() : p.pause() }
+    // Michael's film opens on a title over black, so move to a moving picture for the words.
+    if (i === 0) p.setCurrentTime(40).catch(() => {})
+    setTimeout(async () => { try { rec.mutedAtStart = await p.getMuted(); rec.volume = await p.getVolume() } catch {} }, 1000)
+
+    let firstAt = 0, last = 0, n = 0, gap = 0, shown = false, hidden = false, finished = false
+    const wrap = async () => {
+      if (finished) return
+      finished = true
+      clearTimeout(guard)
+      p.off('timeupdate', onTime)
+      if (firstAt) { rec.updatesPerSecond = +(n / ((last - firstAt) / 1000)).toFixed(1); rec.longestGapMs = Math.round(gap) } else rec.stalled = true
+      gsap.to([veil, words], { opacity: 0, duration: 0.3 })
+      await checks(p, rec)
+      gsap.to(line, { opacity: 0, duration: 0.2 })
+      gsap.to(rail, { x: 0, y: 0, scale: 1, duration: 0.9, ease: EASE, onComplete: () => rail.classList.remove('in') })
+      gsap.to($('#top'), { opacity: 1, duration: 0.3 })
+      gsap.to($('#dark'), { opacity: 0, duration: 0.5, ease: 'none' })
+      slots.forEach(s => gsap.to(s, { opacity: 1, duration: 0.4, ease: 'none' }))
+      slot.classList.remove('live')
+      gsap.to(card, { opacity: 1, duration: 0.3 }); gsap.to(print, { scale: 1, duration: 0.5 })
+      setTimeout(then, 1100)
+    }
+    const onTime = d => {
+      const now = performance.now()
+      if (!firstAt) firstAt = now
+      if (last) gap = Math.max(gap, now - last)
+      last = now; n++
+      if (d.duration) fill.style.transform = `scaleX(${d.seconds / d.duration})`
+      const el = (now - firstAt) / 1000
+      if (!shown && el >= WORDS_AT) {
+        shown = true
+        gsap.to(veil, { opacity: 1, duration: 0.5, ease: 'none' })
+        gsap.fromTo(words, { opacity: 0, scale: 0.96, filter: 'blur(9px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.6, ease: 'none', clearProps: 'filter' })
+        gsap.to(words, { scale: 1.08, duration: WORDS_TO - WORDS_AT, ease: 'none' })
+      }
+      if (shown && !hidden && el >= WORDS_TO) { hidden = true; gsap.to([veil, words], { opacity: 0, duration: 0.5, ease: 'none' }) }
+      if (el >= FILM_SECONDS) wrap()
+    }
+    const guard = setTimeout(wrap, 22000) // never leave someone stuck on a film that stalled
+    p.on('timeupdate', onTime)
+  }
+
+  async function checks(p, rec) {
+    const c = rec.checks = {}
+    const safe = async (k, fn) => { try { c[k] = await fn() } catch (e) { c[k] = 'failed: ' + (e.name || e) } }
+    await safe('pause', async () => { await p.pause(); return await p.getPaused() })
+    await safe('playAgain', async () => { await p.play(); await new Promise(r => setTimeout(r, 500)); return !(await p.getPaused()) })
+    await safe('seekTo60', async () => { await p.setCurrentTime(60); await new Promise(r => setTimeout(r, 500)); return +(await p.getCurrentTime()).toFixed(1) })
+    await safe('mute', async () => { await p.setMuted(true); const m = await p.getMuted(); await p.setMuted(false); return m })
+    await safe('stop', async () => { await p.pause(); return await p.getPaused() })
+  }
+
+  /* Things only eyes and ears can answer. */
+  const Q = [
+    { key: 'sound', q: 'Did you hear sound on the films that played?', a: ['Yes, on both', 'Only on Michael', 'Only on Whitney', 'No sound'] },
+    { key: 'vimeoUI', q: 'On Whitney’s film, did you see any of Vimeo’s own buttons or its logo?', a: ['No, it stayed clean', 'Yes, for a moment', 'Yes, the whole time'] },
+    { key: 'words', q: 'Did the words float cleanly over the moving picture?', a: ['Yes', 'They stuttered', 'I never saw them'] },
+  ]
+  function ask(n) {
+    stage = 'questions'
+    const box = $('#ask'); box.classList.add('on')
+    if (n >= Q.length) return results(box)
+    box.innerHTML = `<p>Last few, ${n + 1} of ${Q.length}</p><h1>${Q[n].q}</h1><div class="opts">${Q[n].a.map(t => `<button class="btn alt" type="button">${t}</button>`).join('')}</div>`
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { R[Q[n].key] = b.textContent; ask(n + 1) }))
+  }
+
+  function browserName() {
+    const u = navigator.userAgent, os = u.match(/OS (\d+)[_.](\d+)/)
+    const app = /Instagram/i.test(u) ? 'Instagram' : /FBAN|FBAV/i.test(u) ? 'Facebook' : /CriOS/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : 'Other'
+    return `${app}, ${os ? `iOS ${os[1]}.${os[2]}` : /Android/i.test(u) ? 'Android' : 'computer'}`
+  }
+  function controlsLine(r) {
+    if (!r.checks) return 'Not reached'
+    const c = r.checks, bad = []
+    if (c.pause !== true) bad.push('pause')
+    if (c.playAgain !== true) bad.push('play')
+    if (!(typeof c.seekTo60 === 'number' && Math.abs(c.seekTo60 - 60) < 3)) bad.push('seek')
+    if (c.mute !== true) bad.push('mute')
+    return bad.length ? 'Failed: ' + bad.join(', ') : 'All worked'
+  }
+  function results(box) {
+    const A = R.A, B = R.B
+    const ours = A.started ? `Started in ${(A.ms / 1000).toFixed(1)} s${A.mutedAtStart ? ', muted' : ''}${A.stalled ? ', then stalled' : ''}` : A.tapped ? `Did not start (${A.playPromise || 'no reply'})` : 'Not tried'
+    const through = B.started ? `Started${B.mutedAtStart ? ', muted' : ''}${B.stalled ? ', then stalled' : ''}` : 'Did not start'
+    const rate = B.updatesPerSecond || A.updatesPerSecond
+    const rows = [
+      ['Browser', browserName()],
+      ['Films allowed here', R.embed],
+      ['Swipe on a film', R.swipe.worked ? 'Worked' : 'Did not move'],
+      ['Our Play button', ours],
+      ['Tap through to Vimeo', through],
+      ['Controls, our button', controlsLine(A)],
+      ['Controls, tap through', controlsLine(B)],
+      ['Time updates', rate ? `${rate} a second` : 'None'],
+      ['Frames reloaded', R.loads.some(n => n > 1) ? 'Yes' : 'No'],
+      ['Sound', R.sound], ['Vimeo’s buttons', R.vimeoUI], ['Words', R.words],
+      ...(R.errors.length ? [['Errors', R.errors.slice(0, 2).join('; ')]] : []),
+    ]
+    box.innerHTML = `<h1>Done. Please send me a screenshot of this screen.</h1><dl class="res">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`
+  }
+</script>
+</body>
+</html>
