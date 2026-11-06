@@ -16,13 +16,13 @@
  * To swap an episode: change EPISODES below (order = column order on Viewers), save, run `setup`, redeploy.
  */
 
-const VERSION = 4;
+const VERSION = 5;
 const TZ = 'America/Los_Angeles';
 
 const EPISODES = [
-  { id: '1210983580', name: 'Michael Steger' },
-  { id: '1209284450', name: 'LaJeune McDonald' },
-  { id: '1210982273', name: 'Ronald Coulter' }
+  { id: '1243879941', name: 'Michael Steger' },
+  { id: '1243884159', name: 'Whitney Wiley' },
+  { id: '1243931242', name: 'Ronald Coulter' }
 ];
 const FINISHED_AT = 0.9;        // 90% watched counts as finished (credits)
 const MILESTONES = [25, 50, 75];

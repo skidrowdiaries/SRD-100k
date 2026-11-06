@@ -4,9 +4,9 @@
   'use strict';
 
   const EPISODES = [
-    { vimeo: '1210983580', label: 'Episode 01', name: 'Michael Steger', line: 'A gentle giant.' },
-    { vimeo: '1209284450', label: 'Episode 02', name: 'LaJeune McDonald', line: 'Angels among us.' },
-    { vimeo: '1210982273', label: 'Episode 04', name: 'Ronald Coulter', line: '“But I have memories.”' }
+    { vimeo: '1243879941', label: 'Episode 01', name: 'Michael Steger', line: 'A gentle giant.' },
+    { vimeo: '1243884159', label: 'Episode 02', name: 'Whitney Wiley', line: '' },
+    { vimeo: '1243931242', label: 'Episode 03', name: 'Ronald Coulter', line: '“But I have memories.”' }
   ];
 
   const $ = (id) => document.getElementById(id);

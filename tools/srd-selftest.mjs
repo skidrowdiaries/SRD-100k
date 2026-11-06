@@ -76,7 +76,7 @@ async function playAll(page, label) {
   try {
     const ping = await getJSON(ENDPOINT + '?ping=1');
     check('Sheet web app answers', ping.ok === true, `version ${ping.version}`);
-    check('Sheet web app is version 4 or newer', ping.version >= 4);
+    check('Sheet web app is version 5 or newer', ping.version >= 5);
   } catch (e) { check('Sheet web app answers', false, e.message); }
 
   const { browser, chrome } = await launch();
