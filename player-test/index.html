@@ -43,8 +43,9 @@
      The clip shows only the slot's share of it until the card has grown over the whole frame. */
   .clip { position: absolute; inset: 0; overflow: hidden; background: var(--black); }
   .slot.open .clip { overflow: visible; background: none; }
-  .film { position: absolute; left: calc((var(--cw) - var(--fw)) / 2); top: calc((var(--ch) - var(--fh)) / 2); width: var(--fw); height: var(--fh); background: var(--black); }
-  .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .film { position: absolute; left: calc((var(--cw) - var(--fw)) / 2); top: calc((var(--ch) - var(--fh)) / 2); width: var(--fw); height: var(--fh); background: var(--black); overflow: hidden; }
+  /* Vimeo's picture stops a fraction of a pixel short of its frame and white shows at the edge, so the frame runs 2px past the box on every side and the box clips it. */
+  .film iframe { position: absolute; left: -2px; top: -2px; width: calc(100% + 4px); height: calc(100% + 4px); border: 0; display: block; }
 
   /* The still. Every touch passes through it to the frame beneath, which is what gives a film its sound on an iPhone. */
   .card { position: absolute; inset: -1px; overflow: hidden; background: var(--black); container-type: inline-size; pointer-events: none; }
@@ -318,7 +319,7 @@
   $('#back').addEventListener('click', () => leave())
 
   const seekTo = e => { const f = film[app.i], r = seek.getBoundingClientRect(); if (!f || !f.dur) return; app.want = clamp((e.clientX - r.left) / r.width) * f.dur; paintTime(app.want) }
-  const seekDone = () => { if (!app.dragging) return; app.dragging = false; if (film[app.i] && film[app.i].firstAt) player(app.i).setCurrentTime(app.want).catch(() => {}); holdBars(CHROME); wake() }
+  const seekDone = () => { if (!app.dragging) return; app.dragging = false; if (film[app.i] && film[app.i].firstAt) { film[app.i].lastAt = 0; player(app.i).setCurrentTime(app.want).catch(() => {}) } holdBars(CHROME); wake() }
   seek.addEventListener('pointerdown', e => { seek.setPointerCapture(e.pointerId); app.dragging = true; clearTimeout(sleepT); seekTo(e) })
   seek.addEventListener('pointermove', e => { if (app.dragging) seekTo(e) })
   seek.addEventListener('pointerup', seekDone)
