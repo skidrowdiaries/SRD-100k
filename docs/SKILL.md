@@ -32,11 +32,11 @@ Homepage footer sign-up form  ──SRD.signup() then go to /watch────�
 | Piece | Value |
 |---|---|
 | Web app endpoint (tracker posts here) | `https://script.google.com/macros/s/AKfycbwLT8cMZgfye1NIlQX2oN-XOovgOFSzUnvX8DrCimFST18ggHnVrwaPtbpgqEePmPDX/exec` |
-| Health check | `GET <endpoint>?ping=1` → `{"ok":true,"version":4,...}` |
+| Health check | `GET <endpoint>?ping=1` → `{"ok":true,"version":5,"episodes":["1243879941","1243884159","1243931242"]}` |
 | Test read-back | `GET <endpoint>?selftest=selftest-<anything>` → that test viewer's rows (test IDs only, never real people) |
 | Google Sheet | "SRD viewers" · id `1xNAivJaFFNVC51aIzBaGGG53kTzQrGXXo5T1RQ7OarM` · owned by press@skidrowdiaries.com |
-| Apps Script project | bound to that sheet (Extensions › Apps Script) · id `13VpvayjZMNfDMpOxoGhhoBegYYfw64FFJ8cOSWRiAbLCOTChgqzqqPFT` · deployment "SRD viewer log v4", execute as Me, access Anyone |
-| Reference implementation (plain HTML) | repo `skidrowdiaries/SRD-100k` (public) · live at `https://dashing-bavarois-22479e.netlify.app/` · source of truth for every file in this skill, commit `f6ad0e8` |
+| Apps Script project | bound to that sheet (Extensions › Apps Script) · id `13VpvayjZMNfDMpOxoGhhoBegYYfw64FFJ8cOSWRiAbLCOTChgqzqqPFT` · deployment "SRD viewer log v5", execute as Me, access Anyone |
+| Reference implementation (plain HTML) | repo `skidrowdiaries/SRD-100k` (public) · live at `https://dashing-bavarois-22479e.netlify.app/` · source of truth for every file in this skill, commit `fafc0c7` |
 
 Note for whoever opens the sheet: in a browser signed into several Google accounts, the `/exec` URL opens a "Page not found" Drive page because Google inserts `/u/N/`. That's a browser quirk; the endpoint works. Test it from a signed-out window, `curl -L`, or the acceptance test.
 
@@ -44,11 +44,11 @@ Note for whoever opens the sheet: in a browser signed into several Google accoun
 
 | # | Vimeo ID | Title on page | Line |
 |---|---|---|---|
-| 1 | `1210983580` | Michael Steger | A gentle giant. |
-| 2 | `1209284450` | LaJeune McDonald | Angels among us. |
-| 3 | `1210982273` | Ronald Coulter | "But I have memories." |
+| 1 | `1243879941` | Michael Steger | A gentle giant. |
+| 2 | `1243884159` | Whitney Wiley | (ask Patrick) |
+| 3 | `1243931242` | Ronald Coulter | "But I have memories." |
 
-The episode labels on the reference page are Episode 01, Episode 02 and Episode 04 (the series numbering). Ask Patrick before changing them.
+Labels on the page: Episode 01, Episode 02, Episode 03. These are the final cuts (Michael V23, Whitney V10, Ronald V24). Each video already has its own thumbnail (the episode card) set in Vimeo, so the player shows it before play. For locked episodes, use the same cards as stills.
 
 To swap an episode later, change it in **two** places: the page, and `EPISODES` at the top of the Apps Script (order = column order on the Viewers tab). Then in the Apps Script editor run `setup`, and redeploy (Deploy › Manage deployments › pencil › Version: New version › Deploy). The URL stays the same.
 
@@ -79,7 +79,7 @@ If the site sends a Content-Security-Policy, allow: `script-src https://player.v
 ```js
 SRD.isKnown()                         // true if we know who this is (email or Inro ID)
 SRD.viewer()                          // { email, first_name, inro_id, ig_handle, source, pathway } or null
-SRD.signup({ first_name, email, source })  // validates, remembers, logs. Returns { ok: true } or { ok: false, error: 'first_name' | 'email' }
+SRD.signup({ first_name, email, form })  // validates, remembers, logs. Returns { ok: true } or { ok: false, error: 'first_name' | 'email' }
 SRD.gateShown()                       // call when the form is shown to an unknown visitor (gate conversion)
 SRD.attachAll(rootElement)            // start tracking every iframe[data-srd-video] inside root
 SRD.attach(iframe)                    // same, one iframe (safe to call twice)
@@ -95,8 +95,8 @@ Each player is a plain Vimeo iframe with two data attributes. Keep the 9:16 fram
 
 ```html
 <iframe
-  src="https://player.vimeo.com/video/1210983580?badge=0&autopause=0&title=0&byline=0&portrait=0&dnt=1"
-  data-srd-video="1210983580"
+  src="https://player.vimeo.com/video/1243879941?badge=0&autopause=0&title=0&byline=0&portrait=0&dnt=1"
+  data-srd-video="1243879941"
   data-srd-title="Michael Steger"
   title="Michael Steger"
   allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
@@ -118,7 +118,7 @@ on load (client only; localStorage doesn't exist on the server):
   else:              render the 3 episodes locked (poster/still, no iframe), show the form, call SRD.gateShown()
 
 form submit:
-  r = SRD.signup({ first_name, email })
+  r = SRD.signup({ first_name, email, form: 'watch' })
   if !r.ok: show the error for r.error ('first_name' → "Please add your first name.", 'email' → "Please enter a full email address.")
   else:     hide the form, render the iframes, SRD.attachAll(list), scroll to the first episode
 
@@ -134,10 +134,23 @@ form submit:
 ### 5. Homepage entry points
 
 - **Section B** ("Full Episodes…") becomes three episode cards (still, name, one line) and one button to `/watch?src=home-b`. Copy says the episodes are out now, not "streaming soon".
-- **Footer "Never Miss a Story" form**: on submit call `SRD.signup({ first_name, email, source: 'home-footer' })` (`source` only applies if the visitor has no earlier source tag). If it's ok, go to `/watch` (the visitor is already known, so the episodes are unlocked). Make first name required here too, so every row on the sheet has a name. Remove the Web3Forms submission from this form, or keep it in addition. Patrick decides; the sheet is now the list.
+- **Footer "Never Miss a Story" form**: on submit call `SRD.signup({ first_name, email, form: 'home-footer' })`. If it's ok, go to `/watch` (the visitor is already known, so the episodes are unlocked). Make first name required here too, so every row on the sheet has a name. Remove the Web3Forms submission from this form, or keep it in addition. Patrick decides; the sheet is now the list.
 - Put `?src=` tags on every link to `/watch` you create, from this list (lowercase, hyphenated): `home-b`, `home-footer`, `ig-bio`, `ig-dm`, `ig-story`, `newsletter`, `press`. New tags are fine. They appear as-is under VIEWERS BY SOURCE.
 
-### 6. Link clicks worth counting
+### 6. React, GSAP and Framer Motion: the traps
+
+The framework doesn't change the contract, but these are the ways a React build usually breaks tracking:
+
+- **Mount the players once.** Render the unlocked episode list in a component that stays mounted. Don't put the iframes inside `AnimatePresence`, a conditional that flips during animation, or a carousel that recycles slides. Each remount creates a new Vimeo player, restarts that episode's count for the visit, and can double-count `start`. Animate a wrapper `motion.div` around the iframe, never the iframe's `key` or parent condition.
+- **Give each iframe a stable `key`** (the Vimeo ID) so reordering never recreates it.
+- **Attach after mount:** `useEffect(() => { if (unlocked && window.SRD) SRD.attachAll(listRef.current) }, [unlocked])`. React StrictMode runs effects twice in development; that's harmless because `attach` ignores an iframe it has already seen.
+- **Read the gate on the client only.** `useState(null)` → in `useEffect` set `SRD.isKnown()`. Render the neutral state while it's `null`. Never compute it during server render or hydration.
+- **The tracker is a plain script, not a module.** Load it with `<Script src="/srd-tracker.js" strategy="afterInteractive" />` (Next.js) or a `<script>` tag in `index.html` (Vite/CRA), and read `window.SRD`. Don't bundle or minify a modified copy, and don't import it. The pinned file is the one the test and the sheet expect.
+- **GSAP ScrollTrigger pinning** is fine on the episode section as long as it doesn't re-parent the iframe. Pin a wrapper. `pinReparent: true` moves the iframe in the DOM, which reloads it. Lenis smooth scroll is fine.
+- **Router:** client-side navigation to `/watch` (`<Link>`) is fine; the tracker keeps its state across routes. Don't strip or rewrite the query string before the tracker has read it on first load (it reads it the moment the script runs).
+- **Footer form:** call `SRD.signup(...)` in the submit handler, then `router.push('/watch')`.
+
+### 7. Link clicks worth counting
 
 Add `data-srd-link="<name>"` to links you want counted per viewer (Log tab, `link_clicks` column, LINK CLICKS summary): for example `data-srd-link="instagram"`, `"la-mission"`, `"la-mission-donate"`, `"youtube"`, `"home"`. Only known viewers are counted.
 
@@ -167,6 +180,7 @@ Anything containing `selftest-` never counts in the summary. **SRD › Delete se
 
 - A person is matched by email first, then by `inro_id`. If someone first known only by Inro ID later gets an email (an Inro `identify` call with both), their row and watch history move to the email.
 - Inro's HTTP Request action can send `identify` with `{{contact.id}}`, `{{contact.username}}`, the collected email and first name. The Inro DM links must carry `?c={{contact.id}}&u={{contact.username}}&src=ig-dm&p=dm`. Inro link cards do fill these placeholders in (tested 28 Oct 2026). This side isn't built yet; it's separate work in the Claude session that owns Inro.
+- **Email provider (later):** links in emails go to `/watch?src=newsletter&p=email`. Someone on a device that already knows them watches straight away; anyone else sees the form once. Never put an email address in a URL. When a provider is chosen, add its subscriber ID as a URL parameter and an `identify` call, the same way Inro's contact ID works, without changing the page.
 
 ## Changing the Apps Script
 
@@ -186,7 +200,7 @@ node srd-selftest.mjs https://<the site or preview hostname>/watch
 - The hostname under test must be in each video's Vimeo domain list.
 - It writes rows tagged `selftest-…`. They don't affect the summary; clear them with SRD › Delete self-test rows.
 - Env overrides: `SRD_SECONDS` (seconds played per episode, default 8), `SRD_EPISODES` (default 3), `SRD_ENDPOINT`.
-- This exact script passed 25/25 against the reference page with a stand-in player and endpoint. The live endpoint was verified separately with real Chrome plays of all three videos on 30 Oct 2026.
+- This exact script passed 25/25 against the reference page with a stand-in player and endpoint. The live endpoint was verified separately with real Chrome plays: on 30 Oct 2026, and again on 5 Nov 2026 with the final three episodes (each played and recorded under the right name).
 
 ### If the test fails
 
@@ -424,7 +438,7 @@ node srd-selftest.mjs https://<the site or preview hostname>/watch
 })(window, document);
 ```
 
-## Source: Apps Script `Code.gs` (record of what is deployed, version 4)
+## Source: Apps Script `Code.gs` (record of what is deployed, version 5)
 
 ```js
 /**
@@ -445,13 +459,13 @@ node srd-selftest.mjs https://<the site or preview hostname>/watch
  * To swap an episode: change EPISODES below (order = column order on Viewers), save, run `setup`, redeploy.
  */
 
-const VERSION = 4;
+const VERSION = 5;
 const TZ = 'America/Los_Angeles';
 
 const EPISODES = [
-  { id: '1210983580', name: 'Michael Steger' },
-  { id: '1209284450', name: 'LaJeune McDonald' },
-  { id: '1210982273', name: 'Ronald Coulter' }
+  { id: '1243879941', name: 'Michael Steger' },
+  { id: '1243884159', name: 'Whitney Wiley' },
+  { id: '1243931242', name: 'Ronald Coulter' }
 ];
 const FINISHED_AT = 0.9;        // 90% watched counts as finished (credits)
 const MILESTONES = [25, 50, 75];
@@ -992,7 +1006,7 @@ async function playAll(page, label) {
   try {
     const ping = await getJSON(ENDPOINT + '?ping=1');
     check('Sheet web app answers', ping.ok === true, `version ${ping.version}`);
-    check('Sheet web app is version 4 or newer', ping.version >= 4);
+    check('Sheet web app is version 5 or newer', ping.version >= 5);
   } catch (e) { check('Sheet web app answers', false, e.message); }
 
   const { browser, chrome } = await launch();
