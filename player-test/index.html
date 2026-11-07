@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Player Round 7</title>
+<title>Player Round 8</title>
 <meta name="description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
 <!-- The card any phone or platform shows when this link is shared. The address is the test site for now; the site's Seo component takes the same values for /watch. -->
 <meta property="og:type" content="website">
@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@700&display=swap">
 <style>
-  /* Player Round 7: Round 6 with the quotes raised off the yellow bar and the consent line brought in step with the Privacy Policy. The film code is Round 6's. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
+  /* Player Round 8: Round 7 with a separate consent checkbox on the sign-up form. The film code is Round 7's. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
      Rule of the build: the Vimeo frame never moves or scales. It sits behind its card at true size, where it will play on the screen, inside the row.
      The camera move belongs to the still alone, so once a film is running it is a plain embed with no moving layer over it, only the bars when asked for.
      Nothing is sent to the viewer sheet and no identity is stored. */
@@ -43,7 +43,7 @@
   .dark { position: fixed; inset: 0; z-index: 1; background: var(--black); opacity: 0; pointer-events: none; }
 
   /* The site's header, as it sits on every page but Home: wordmark and menu, stacked on a phone. */
-  .nav { position: fixed; z-index: 30; top: 0; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px; background: rgb(15 15 14 / 0.98); border-bottom: 1px solid var(--line); }
+  .nav { position: fixed; z-index: 30; top: 0; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px; background: var(--ground); border-bottom: 1px solid var(--line); }
   .nav .wm { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: 0.02em; color: var(--ink); text-decoration: none; white-space: nowrap; }
   .nav .wm span { color: var(--canary-ink); }
   .nav nav { display: flex; gap: 20px; }
@@ -176,8 +176,16 @@
   .fld input:-webkit-autofill, .fld input:-webkit-autofill:hover, .fld input:-webkit-autofill:focus { -webkit-text-fill-color: var(--ink); -webkit-box-shadow: 0 0 0 100px var(--ground) inset; }
   .err { margin: 0; font-size: 18px; line-height: 1.25; color: var(--canary-ink); }
   .join .act { width: 100%; }
-  .agree { margin: 0; text-align: center; font-size: 16px; line-height: 1.35; color: var(--muted); }
-  .agree a { color: var(--canary-ink); text-underline-offset: 3px; }
+  /* The consent box stands apart from the fields, starts empty, and has to be ticked. Nothing is saved until it is. */
+  .tick { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 14px; align-items: start; font-size: 17px; line-height: 1.35; color: var(--muted); cursor: pointer; }
+  .tick input { position: absolute; left: -8px; top: -8px; width: 44px; height: 44px; margin: 0; opacity: 0; cursor: pointer; }
+  .tick .box { position: relative; width: 28px; height: 28px; border: 1px solid var(--muted); background: transparent; }
+  .tick .box::after { content: ""; position: absolute; left: 9px; top: 4px; width: 8px; height: 15px; border: solid var(--black); border-width: 0 2px 2px 0; rotate: 45deg; opacity: 0; }
+  .tick input:checked + .box { background: var(--canary); border-color: var(--canary); }
+  .tick input:checked + .box::after { opacity: 1; }
+  .tick input:focus-visible + .box { outline: 2px solid var(--canary); outline-offset: 2px; }
+  .tick input[aria-invalid="true"] + .box { border-color: var(--canary); }
+  .tick a { color: var(--canary-ink); text-underline-offset: 3px; }
 
   /* The site's footer. */
   .sf { background: var(--black); border-top: 1px solid var(--line); padding: 56px 16px 24px; }
@@ -249,8 +257,13 @@
       <input id="g-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" enterkeyhint="go" required aria-describedby="e-email">
       <p class="err" id="e-email" role="alert" hidden></p>
     </div>
+    <label class="tick">
+      <input id="g-agree" name="consent" type="checkbox" required aria-describedby="e-agree">
+      <span class="box" aria-hidden="true"></span>
+      <span>I agree to the <a href="https://srd-next.netlify.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>. Skid Row Diaries may track what I watch, email me about new stories and offers, and share my information and what I watch with partners and advertising platforms, including through pixels.</span>
+    </label>
+    <p class="err" id="e-agree" role="alert" hidden></p>
     <button class="act" type="submit">Watch Now</button>
-    <p class="agree">By continuing you agree to our <a href="https://srd-next.netlify.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, including tracking what you watch, and to occasional emails about new stories and offers.</p>
   </form>
 </section>
 
@@ -510,7 +523,7 @@
 
   /* The gate. Someone we don't know sees the portraits and the form, with no frames on the page. Someone we know goes straight to the films.
      The form stays part of the page, and tapping a locked portrait glides down to it. */
-  const root = document.documentElement, join = $('#join'), gFirst = $('#g-first'), gEmail = $('#g-email'), eFirst = $('#e-first'), eEmail = $('#e-email')
+  const root = document.documentElement, join = $('#join'), gFirst = $('#g-first'), gEmail = $('#g-email'), gAgree = $('#g-agree'), eFirst = $('#e-first'), eEmail = $('#e-email'), eAgree = $('#e-agree')
   const say = (input, box, text) => { box.textContent = text; box.hidden = !text; input.setAttribute('aria-invalid', text ? 'true' : 'false') }
   function unlock() {
     root.classList.remove('gated')
@@ -521,13 +534,18 @@
     $('#who').hidden = false
   }
   rail.addEventListener('click', e => { if (root.classList.contains('gated') && e.target.closest('.hit') && !e.target.closest('.soon')) join.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }) })
+  gAgree.addEventListener('change', () => { if (gAgree.checked) say(gAgree, eAgree, '') })
   gFirst.addEventListener('keydown', e => { if (e.key === 'Enter' && !gEmail.value) { e.preventDefault(); gEmail.focus() } })
   $('#gate').addEventListener('submit', e => {
     e.preventDefault()
-    const r = SRD.signup({ first_name: gFirst.value, email: gEmail.value })
+    // The tracker saves as it checks, so it is only called once the box is ticked and both fields have something in them.
+    const blank = !gFirst.value.trim() ? 'first_name' : !gEmail.value.trim() ? 'email' : ''
+    const r = gAgree.checked && !blank ? SRD.signup({ first_name: gFirst.value, email: gEmail.value, form: 'watch-checkbox-v1' }) : { ok: false, error: blank }
     say(gFirst, eFirst, r.error === 'first_name' ? 'Please add your first name.' : '')
     say(gEmail, eEmail, r.error === 'email' ? 'Please enter a full email address.' : '')
-    if (!r.ok) return (r.error === 'first_name' ? gFirst : gEmail).focus()
+    say(gAgree, eAgree, gAgree.checked ? '' : 'Please tick the box to continue.')
+    if (!r.ok) return (r.error === 'first_name' ? gFirst : r.error === 'email' ? gEmail : gAgree).focus()
+    SRD.track('consent_v1') // a dated row in the Log tab, as the record that this person ticked the box
     document.activeElement.blur()
     unlock()
     const o = { y: scrollY } // back up to the row, on the card they chose, and the form leaves the page once the row is in view
@@ -621,7 +639,7 @@
   document.fonts && document.fonts.ready.then(() => layout())
   let rT = 0
   addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(layout, 120) })
-  window.__round7 = { app, film }
+  window.__round8 = { app, film }
 </script>
 </body>
 </html>
