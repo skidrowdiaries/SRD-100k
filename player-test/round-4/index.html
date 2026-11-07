@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Player Round 4</title>
+<meta name="description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
+<!-- The card any phone or platform shows when this link is shared. The address is the test site for now; the site's Seo component takes the same values for /watch. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Skid Row Diaries">
+<meta property="og:url" content="https://dashing-bavarois-22479e.netlify.app/player-test/">
+<meta property="og:title" content="Skid Row Diaries: Stories from the Street">
+<meta property="og:description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
+<meta property="og:image" content="https://dashing-bavarois-22479e.netlify.app/player-test/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Portraits of Michael Steger, Whitney Wiley and Ronald Coulter, with the words Skid Row Diaries.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Skid Row Diaries: Stories from the Street">
+<meta name="twitter:description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
+<meta name="twitter:image" content="https://dashing-bavarois-22479e.netlify.app/player-test/img/share.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@700&display=swap">
+<style>
+  /* Player Round 4: Round 3 with six cards in black and white. The film code is Round 3's, untouched. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
+     Rule of the build: the Vimeo frame never moves or scales. It sits behind its card at true size, where it will play on the screen, inside the row.
+     The camera move belongs to the still alone, so once a film is running it is a plain embed with no moving layer over it, only the bars when asked for.
+     Nothing is sent to the viewer sheet and no identity is stored. */
+  :root { --ground: #0f0f0e; --black: #080808; --ink: #f2efe8; --muted: rgb(242 239 232 / 0.7); --faint: rgb(242 239 232 / 0.5); --line: rgb(242 239 232 / 0.14); --canary: #fdf990; --canary-ink: #fdf98d; --body: "EB Garamond", Garamond, Georgia, serif; --display: "Playfair Display", Georgia, serif; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html { scrollbar-gutter: stable; background: var(--ground); }
+  html.lock { overflow: hidden; } /* a film is open, so the page behind it stays put */
+  body { background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; color: var(--ink); font-family: var(--body); font-size: 19px; line-height: 1.35; -webkit-font-smoothing: antialiased; overflow-x: clip; touch-action: manipulation; }
+  /* The first screen: exactly one screen tall, the row and the film live here, and the rest of the page sits below it. */
+  main { position: relative; z-index: 1; height: 100vh; height: 100svh; overflow: hidden; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--canary); outline-offset: 2px; }
+
+  .dark { position: fixed; inset: 0; z-index: 1; background: var(--black); opacity: 0; pointer-events: none; }
+
+  /* The site's header, as it sits on every page but Home: wordmark and menu, stacked on a phone. */
+  .nav { position: fixed; z-index: 30; top: 0; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px; background: rgb(15 15 14 / 0.94); border-bottom: 1px solid var(--line); }
+  .nav .wm { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: 0.02em; color: var(--ink); text-decoration: none; white-space: nowrap; }
+  .nav .wm span { color: var(--canary-ink); }
+  .nav nav { display: flex; gap: 20px; }
+  .nav nav a { padding-block: 12px; margin-block: -12px; font-weight: 500; font-size: 14px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+  @media (hover: hover) and (pointer: fine) { .nav a:hover { color: var(--canary); } }
+  @media (min-width: 760px) { .nav { flex-direction: row; justify-content: space-between; padding-inline: 64px; } .nav .wm { font-size: 24px; } .nav nav { gap: 32px; } }
+  .head, .foot { position: absolute; z-index: 2; left: 0; right: 0; display: flex; align-items: center; justify-content: center; padding-inline: 16px; }
+  .head { top: calc(var(--top) - var(--hh)); height: var(--hh); }
+  .foot { bottom: 0; height: var(--ft); gap: 28px; z-index: 4; pointer-events: none; } /* above the row, which fills the screen, so a swipe still works around the links */
+  .head h1 { margin: 0; font-weight: 600; font-size: clamp(23px, 6.2vw, 34px); line-height: 1.1; text-align: center; }
+  .head h1 span { color: var(--canary-ink); }
+  .foot a { pointer-events: auto; display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 17px; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* The row. A plain native scroller, so a swipe that starts on a Vimeo frame still moves it. */
+  .rail { position: absolute; inset: 0; z-index: 3; display: flex; align-items: flex-start; gap: var(--gap); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail::before, .rail::after { content: ""; flex: none; width: calc(var(--pad) - var(--gap)); }
+  .rail.in { overflow: hidden; scroll-snap-type: none; }
+  .slot { position: relative; flex: none; width: var(--cw); height: var(--ch); margin-top: var(--top); scroll-snap-align: center; scroll-snap-stop: always; }
+  .slot.top { z-index: 2; }
+  .slot.gone { visibility: hidden; }
+
+  /* The frame is at full-screen size, already at the height it will play on the screen, so when a slot sits centred the film is exactly where it will be.
+     The clip shows only the slot's share of it until the card has grown over the whole frame. */
+  .clip { position: absolute; inset: 0; overflow: hidden; background: var(--black); }
+  .slot.open .clip { overflow: visible; background: none; }
+  .film { position: absolute; left: calc((var(--cw) - var(--fw)) / 2); top: calc((var(--sh) - var(--fh)) / 2 - var(--top)); width: var(--fw); height: var(--fh); background: var(--black); overflow: hidden; }
+  /* Vimeo's picture stops a fraction of a pixel short of its frame and white shows at the edge, so the frame runs 2px past the box on every side and the box clips it. */
+  .film iframe { position: absolute; left: -2px; top: -2px; width: calc(100% + 4px); height: calc(100% + 4px); border: 0; display: block; }
+
+  /* The still. Every touch passes through it to the frame beneath, which is what gives a film its sound on an iPhone. */
+  .card { position: absolute; inset: -1px; overflow: hidden; background: var(--black); container-type: inline-size; pointer-events: none; }
+  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; translate: 0 -4%; } /* the faces have headroom, so they sit a little higher to clear the quote */
+  .type { position: absolute; inset: 0; }
+  .scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 66%; background: linear-gradient(0deg, rgb(8 8 8 / 0.9) 0%, rgb(8 8 8 / 0.72) 42%, rgb(8 8 8 / 0) 100%); }
+  .no { position: absolute; right: 7cqw; top: 6cqw; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8cqw; text-shadow: 0 1px 12px rgb(0 0 0 / 0.6); }
+  .no small { font-weight: 500; font-size: max(12px, 3cqw); line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); margin-right: -0.2em; }
+  .no b { font-family: var(--display); font-weight: 700; font-size: 10cqw; line-height: 1; color: var(--canary-ink); }
+  .txt { position: absolute; left: 7cqw; right: 7cqw; bottom: 7cqw; display: flex; flex-direction: column; align-items: flex-start; }
+  /* Each line fills the card before it breaks. Only a very small phone needs a third line, and there the wrap keeps the last line from being one word. */
+  .words { hanging-punctuation: first; margin: 0 -1cqw 2.4cqw 0; font-style: italic; font-size: max(17px, 7cqw); line-height: 1.16; color: var(--ink); transform-origin: 0 100%; text-wrap: wrap; }
+  @container (max-width: 242px) { .words { text-wrap: pretty; } }
+  .nm { margin: 0 0 3.6cqw; font-family: var(--display); font-weight: 700; font-size: 8.4cqw; line-height: 1.1; color: var(--canary-ink); white-space: nowrap; }
+  /* The whole card is the tap target, so on a small phone this sign can give up height to keep the quote off the face. */
+  .btn { display: flex; align-items: center; justify-content: center; width: 100%; height: clamp(40px, 18cqw, 56px); font-weight: 600; font-size: 17px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--canary); }
+
+  /* Episodes still to come. There is no frame behind these, so a tap only answers: the portrait goes grey and the sign says so. */
+  .slot.soon .hit { display: block; }
+  .wash { position: absolute; inset: 0; background: rgb(112 111 107); opacity: 0; transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .slot.shut .wash { opacity: 0.82; }
+
+  /* The last card closes the row, with the stacked logo: each line set to the same width, as on the opening title. */
+  .slot.end .card { background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; box-shadow: inset 0 0 0 1px var(--line); }
+  .close { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13cqw; text-align: center; }
+  .close p { margin: 0; font-weight: 600; font-size: 10.2cqw; line-height: 1.12; color: var(--ink); }
+  .close p span { display: block; color: var(--canary-ink); }
+  .lg { display: block; width: 40cqw; font-family: var(--display); font-weight: 700; color: var(--canary-ink); text-align: left; }
+  .lg span { display: block; white-space: nowrap; }
+  .lg .s { font-size: 19.96cqw; line-height: 0.87; margin-left: -1.1cqw; }
+  .lg .r { font-size: 20.02cqw; line-height: 0.87; margin-left: -0.68cqw; }
+  .lg .d { font-size: 12.17cqw; line-height: 1; margin: 1.4cqw 0 0 -0.41cqw; color: var(--ink); }
+
+  /* After a film has started once, or on a computer, a press belongs to us. */
+  .hit { position: absolute; inset: 0; z-index: 2; display: none; background: none; border: 0; padding: 0; cursor: pointer; }
+  .slot.ours .hit { display: block; }
+  @media (hover: hover) and (pointer: fine) { .slot.ours .hit:hover ~ .card img { scale: 1.03; } .card img { transition: scale 400ms cubic-bezier(0.16, 1, 0.3, 1); } }
+
+  /* The bars. Vimeo's own buttons on a phone live in strips along the top and bottom of the frame, and show for about three seconds after a tap,
+     a pause or a jump. Widescreen bars, the opening shot's move, cover those strips and carry our controls. The burned-in subtitles stay clear of them. */
+  .band { position: absolute; z-index: 5; left: 0; right: 0; background: var(--black); pointer-events: none; display: none; transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1); }
+  main.touch:not([data-mode="row"]) .band { display: block; }
+  .band.t { top: 0; height: calc(var(--fb, 0px) + 60px); transform: translateY(-101%); }
+  .band.b { bottom: 0; height: calc(var(--fb, 0px) + 116px + env(safe-area-inset-bottom, 0px)); transform: translateY(101%); }
+  main.bars .band { transform: none; }
+  main.touch .ctl .veil { display: none; }
+
+  /* The film's own controls: ours, over the picture, below the burned-in subtitles. */
+  .surface { position: absolute; inset: 0; z-index: 6; display: none; background: none; border: 0; padding: 0; }
+  main:not([data-mode="row"]) .surface { display: block; }
+  .ctl { position: absolute; z-index: 7; left: 50%; bottom: var(--fb, 0px); width: var(--fw); translate: -50% 0; display: none; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  main:not([data-mode="row"]) .ctl { display: block; }
+  .ctl .veil { position: absolute; left: 0; right: 0; bottom: 0; height: 132px; pointer-events: none; background: linear-gradient(0deg, rgb(8 8 8 / 0.84) 0%, rgb(8 8 8 / 0) 100%); transition: opacity 240ms ease-out; }
+  .ctl .bar { position: relative; display: flex; align-items: center; gap: 2px; padding-inline: 8px; transition: opacity 240ms ease-out; }
+  .ctl .c { font-weight: 600; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); background: none; border: 0; min-height: 48px; min-width: 44px; padding: 0 10px; cursor: pointer; }
+  .ctl .time { font-size: 16px; color: var(--muted); font-variant-numeric: tabular-nums; padding-inline: 6px; white-space: nowrap; }
+  .ctl .sp { flex: 1; }
+  .ctl .seek { position: relative; height: 44px; display: flex; align-items: flex-end; touch-action: none; cursor: pointer; }
+  .ctl .track { position: relative; display: block; width: 100%; height: 2px; background: rgb(242 239 232 / 0.22); }
+  .ctl .fill { position: absolute; inset: 0; background: var(--canary); transform-origin: 0 50%; transform: scaleX(0); }
+  .ctl.idle .veil, .ctl.idle .bar { opacity: 0; pointer-events: none; }
+  .ctl.idle .seek { pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) { .band, .wash { transition: none; } }
+
+  .log { position: fixed; z-index: 40; inset: 0; overflow-y: auto; background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
+  /* Below the row. The Mission's ask uses the link style of the Mission credit on Home, and it stays about the Mission, never about the person just watched. */
+  section.ask { padding: clamp(72px, 13svh, 128px) 16px; scroll-margin-top: var(--nav); display: flex; justify-content: center; text-align: center; border-top: 1px solid var(--line); }
+  .ask .blk { width: min(100%, 720px); display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .ask h2 { margin: 0; font-weight: 600; font-size: clamp(30px, 5.4vw, 48px); line-height: 1.14; text-wrap: balance; }
+  .ask h2 span { color: var(--canary-ink); }
+  .go { position: relative; display: inline-flex; align-items: center; min-height: 48px; font-weight: 600; font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--canary-ink); text-decoration: none; }
+  .go::after { content: ""; position: absolute; left: 0; right: 0.2em; bottom: 9px; height: 1px; background: currentColor; transform-origin: 0 50%; }
+  @keyframes redraw { 0% { transform: scaleX(1); transform-origin: 100% 50%; } 45% { transform: scaleX(0); transform-origin: 100% 50%; } 46% { transform: scaleX(0); transform-origin: 0 50%; } 100% { transform: scaleX(1); transform-origin: 0 50%; } }
+  @media (hover: hover) and (pointer: fine) { .go:hover::after { animation: redraw 640ms cubic-bezier(0.16, 1, 0.3, 1); } }
+  .ask .line { margin: 0; max-width: 28em; font-style: italic; font-size: clamp(21px, 2.4vw, 26px); line-height: 1.35; color: var(--muted); text-wrap: balance; }
+  .act { position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 44px; font: inherit; font-weight: 600; font-size: 16px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--canary); border: 0; border-radius: 0; cursor: pointer; transition: scale 120ms ease-out; }
+  .act::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink); transform: scaleY(0); transform-origin: 50% 100%; transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1); }
+  @media (hover: hover) and (pointer: fine) { .act:hover::before { transform: scaleY(1); } }
+  .act:active { scale: 0.98; }
+  @media (min-width: 760px) { .act { min-height: 64px; font-size: 18px; } }
+  .ways { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 24px; }
+  .ways a, .ways button { display: inline-flex; align-items: center; min-height: 44px; padding: 0; font: inherit; font-size: 18px; color: var(--muted); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  @media (hover: hover) and (pointer: fine) { .ways a:hover, .ways button:hover { color: var(--canary-ink); } .ways .ph { display: none; } }
+  .said { margin: 0; min-height: 1.4em; color: var(--canary-ink); font-size: 18px; }
+
+  /* The site's footer. */
+  .sf { background: var(--black); border-top: 1px solid var(--line); padding: 56px 16px 24px; }
+  .sf .in { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px 48px; }
+  .sf .wm { font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1; }
+  .sf .wm span { color: var(--canary-ink); }
+  .sf h3 { margin: 0 0 8px; font-weight: 500; font-size: 14px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .sf .col { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .sf .col a { display: inline-flex; align-items: center; min-height: 44px; font-size: 17px; color: var(--muted); text-decoration: none; }
+  .sf .col a.lam { color: var(--canary-ink); font-weight: 500; }
+  .sf .copy { grid-column: 1 / -1; margin: 0; border-top: 1px solid var(--line); padding-top: 20px; font-size: 16px; color: var(--muted); }
+  .sf .test { grid-column: 1 / -1; margin: 0; }
+  .sf .test button { min-height: 44px; padding: 0; background: none; border: 0; color: var(--faint); font-size: 16px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  .log h2 { margin: 0; font-weight: 600; font-size: 26px; line-height: 1.14; }
+  .log h3 { margin: 10px 0 0; font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--canary-ink); }
+  .log dl { margin: 0; display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 4px 12px; font-size: 16px; line-height: 1.22; }
+  .log dt { color: var(--muted); }
+  .log dd { margin: 0; font-weight: 500; }
+  .log .close { align-self: flex-start; background: none; border: 1px solid var(--line); min-height: 48px; padding: 0 18px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <a class="wm" href="https://srd-next.netlify.app/" data-srd-link="home"><span>Skid Row</span> Diaries</a>
+  <nav aria-label="Main">
+    <a href="https://srd-next.netlify.app/" data-srd-link="home">Home</a>
+    <a href="https://srd-next.netlify.app/about">About</a>
+    <a href="https://srd-next.netlify.app/press">Press</a>
+    <a href="https://srd-next.netlify.app/contact">Contact</a>
+  </nav>
+</header>
+<main id="main" data-mode="row">
+  <div class="dark" id="dark"></div>
+  <header class="head" id="head"><h1>Full Episodes. <span>Available Now.</span></h1></header>
+  <div class="rail" id="rail"></div>
+  <div class="foot" id="foot">
+    <a href="#help" data-jump>Help on Skid Row</a>
+    <a href="#share" data-jump>Share with a friend</a>
+  </div>
+  <button class="surface" id="surface" type="button" aria-label="Show or hide the controls"></button>
+  <div class="band t"></div>
+  <div class="band b"></div>
+  <div class="ctl idle" id="ctl">
+    <div class="veil"></div>
+    <div class="bar">
+      <button class="c" type="button" id="toggle">Pause</button>
+      <span class="time"><span id="now">0:00</span> / <span id="dur">0:00</span></span>
+      <span class="sp"></span>
+      <button class="c" type="button" id="back">Back</button>
+    </div>
+    <div class="seek" id="seek" role="slider" tabindex="0" aria-label="Position in the film" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="track"><span class="fill" id="fill"></span></span></div>
+  </div>
+</main>
+
+<section class="ask" id="help" aria-label="Help on Skid Row">
+  <div class="blk">
+    <h2>If you want to help make a difference on Skid Row, please donate to the <span>Los Angeles Mission.</span></h2>
+    <a class="go" href="https://losangelesmission.org/?form=DonateNow&amp;appeal=DIGI-ONLINE&amp;ref=srd-watch" target="_blank" rel="noopener noreferrer" data-srd-link="la-mission-donate">Click to Help</a>
+  </div>
+</section>
+
+<section class="ask" id="share" aria-label="Share this with a friend">
+  <div class="blk">
+    <h2>Share this with a friend.</h2>
+    <p class="line" id="shareline"></p>
+    <button class="act" type="button" id="sharebtn" data-srd-link="share">Share</button>
+    <div class="ways">
+      <a class="ph" id="s-text" data-srd-link="share-text">Text</a>
+      <a id="s-mail" data-srd-link="share-email">Email</a>
+      <a id="s-fb" target="_blank" rel="noopener noreferrer" data-srd-link="share-facebook">Facebook</a>
+      <a id="s-x" target="_blank" rel="noopener noreferrer" data-srd-link="share-x">X</a>
+      <button type="button" id="s-copy" data-srd-link="share-copy">Copy</button>
+    </div>
+    <p class="said" id="said" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<footer class="sf">
+  <div class="in">
+    <div class="col"><div class="wm"><span>Skid Row</span> Diaries</div></div>
+    <div class="col"><h3>In Association With</h3><a class="lam" href="https://losangelesmission.org" target="_blank" rel="noopener noreferrer" data-srd-link="la-mission">Los Angeles Mission</a></div>
+    <div class="col"><h3>Watch</h3><a href="https://www.youtube.com/@skidrowdiaries" target="_blank" rel="noopener noreferrer" data-srd-link="youtube">YouTube</a><a href="https://www.instagram.com/skidrowdiaries" target="_blank" rel="noopener noreferrer" data-srd-link="instagram">Instagram</a><a href="https://www.tiktok.com/@skidrowdiaries" target="_blank" rel="noopener noreferrer" data-srd-link="tiktok">TikTok</a><a href="https://x.com/skidrowdiaries" target="_blank" rel="noopener noreferrer" data-srd-link="x">X</a></div>
+    <p class="copy">© 2026 Skid Row Diaries. All rights reserved. In Association With Los Angeles Mission.</p>
+    <p class="test"><button type="button" id="openlog">Test log</button></p>
+  </div>
+</footer>
+
+<section class="log" id="log" hidden></section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+<script src="../../srd-tracker.js"></script>
+<script>
+  // Nothing reaches the sheet: the endpoint is blanked before anything can send, and no sign-up is made, so no identity is saved.
+  SRD.configure({ endpoint: '' })
+
+  const EP = [
+    { n: '01', id: '1243879941', name: 'Michael Steger', words: '“I would give anyone the shirt off my back if they ever needed it.”', img: 'michael' },
+    { n: '02', id: '1243884159', name: 'Whitney Wiley', words: '“I get a lot of attention.<br>I don’t like it.”', img: 'whitney' },
+    { n: '03', id: '1243931242', name: 'Ronald Coulter', words: '“This dude named Tony Harper murdered my whole family.”', img: 'ronald' },
+  ]
+  // On the row, not yet in the film list: no frame, no tracking, nothing plays.
+  const SOON = [
+    { n: '04', name: 'Ashley Owen', words: '“Believe it or not, there’s love down here. I’ve seen it.”', img: 'ashley' },
+    { n: '05', name: 'Isiah James', words: '“How can I wake up happy and do something I love every day?”', img: 'isiah' },
+  ]
+  const $ = q => document.querySelector(q)
+  const nav = $('#nav'), main = $('#main'), rail = $('#rail'), dark = $('#dark'), head = $('#head'), foot = $('#foot'), ctl = $('#ctl'), seek = $('#seek'), fillEl = $('#fill')
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+  const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
+  const touch = matchMedia('(hover: none)').matches || matchMedia('(pointer: coarse)').matches
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const D = s => (calm ? 0.001 : s)
+  const EASE = (() => { const A = (a, b) => 1 - 3 * b + 3 * a, B = (a, b) => 3 * b - 6 * a, C = a => 3 * a, f = (t, a, b) => ((A(a, b) * t + B(a, b)) * t + C(a)) * t, d = (t, a, b) => 3 * A(a, b) * t * t + 2 * B(a, b) * t + C(a); return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 6; i++) { const s = d(t, 0.16, 0.3); if (Math.abs(s) < 1e-5) break; t -= (f(t, 0.16, 0.3) - x) / s } return f(t, 1, 1) } })()
+
+  // The still clears quickly, so nobody misses the start of a film. STAY outlasts Vimeo's buttons, which go about three seconds after a tap or a press.
+  const CAMERA = 1.8, HOLD = 0.8, FADE = 0.6, CHROME = 3200, STAY = 3600
+  if (touch) main.classList.add('touch')
+
+  /* The row is built once and never rebuilt, so the frames are never remounted. */
+  const type = e => `
+        <div class="type">
+          <div class="scrim"></div>
+          <div class="no"><small>Episode</small><b>${e.n}</b></div>
+          <div class="txt">${e.words ? `<p class="words">${e.words}</p>` : ''}<p class="nm">${e.name}</p><span class="btn">Play</span></div>
+        </div>`
+  rail.innerHTML = EP.map((e, i) => `
+    <article class="slot${touch ? '' : ' ours'}" data-i="${i}">
+      <div class="clip"><div class="film"><iframe src="https://player.vimeo.com/video/${e.id}?badge=0&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;dnt=1${touch ? '' : '&amp;controls=0'}" data-srd-video="${e.id}" data-srd-title="${e.name}" title="${e.name}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div>
+      <button class="hit" type="button" aria-label="Play episode ${e.n}, ${e.name}"></button>
+      <div class="card">
+        <img src="img/${e.img}.webp" alt="Portrait of ${e.name}." decoding="async">${type(e)}
+      </div>
+    </article>`).join('') + SOON.map((e, k) => `
+    <article class="slot soon" data-i="${EP.length + k}">
+      <div class="clip"></div>
+      <button class="hit" type="button" aria-label="Episode ${e.n}, ${e.name}. Coming soon."></button>
+      <div class="card">
+        <img src="img/${e.img}.webp" alt="Portrait of ${e.name}." decoding="async">
+        <i class="wash"></i>${type(e)}
+      </div>
+    </article>`).join('') + `
+    <article class="slot end" data-i="${EP.length + SOON.length}">
+      <div class="clip"></div>
+      <div class="card"><div class="close"><p>100 Portraits <span>+</span> 100 Conversations</p><div class="lg" role="img" aria-label="Skid Row Diaries"><span class="s">Skid</span><span class="r">Row</span><span class="d">Diaries</span></div></div></div>
+    </article>`
+  const slots = [...rail.querySelectorAll('.slot')]
+  const cards = slots.map(s => ({ root: s.querySelector('.card'), img: s.querySelector('img'), type: s.querySelector('.type'), words: s.querySelector('.words'), btn: s.querySelector('.btn') }))
+  const setShut = (i, on) => { slots[i].classList.toggle('shut', on); cards[i].btn.textContent = on ? 'Coming Soon' : 'Play' }
+
+  /* Sizes, always whole pixels, so a film's edge can never show past its card. */
+  let G = {}
+  const even = (whole, v) => whole - 2 * Math.round((whole - v) / 2)
+  function layout() {
+    const W = main.clientWidth, H = main.clientHeight, wide = W >= 760, gap = wide ? 28 : 12
+    const fw = even(W, Math.min(H, W * 16 / 9) * 9 / 16), fh = even(H, Math.min(H, W * 16 / 9))
+    const navH = nav.offsetHeight, hh = wide ? 60 : 44, ft = wide ? 56 : 52
+    const room = H - navH - hh - ft
+    const cw = even(W, wide ? Math.min(room * 9 / 16, (W - 96 - 2 * gap) / 3) : Math.min(W * 0.76, room * 9 / 16))
+    const ch = Math.round(cw * 16 / 9)
+    const top = navH + hh + Math.round((room - ch) / 2)
+    const st = document.documentElement.style
+    Object.entries({ '--cw': cw, '--ch': ch, '--fw': fw, '--fh': fh, '--sh': H, '--gap': gap, '--pad': (W - cw) / 2, '--top': top, '--hh': hh, '--ft': ft, '--fb': (H - fh) / 2, '--nav': navH }).forEach(([k, v]) => st.setProperty(k, v + 'px'))
+    const mids = slots.map(s => s.offsetLeft + cw / 2)
+    G = { W, H, wide, gap, cw, ch, fw, fh, top, mids, S: Math.max(fw / cw, fh / ch), dy: H / 2 - (top + ch / 2), lefts: mids.map(m => m - W / 2) }
+    if (app.mode === 'row') { if (wide) rail.scrollLeft = G.lefts[1]; paintWords() }
+    else { rail.scrollLeft = G.lefts[app.i]; gsap.set(cards[app.i].root, { scale: G.S, y: G.dy }) }
+  }
+
+  /* The words on each still arrive with the hand: they follow the swipe, and nothing runs by itself. */
+  function paintWords() {
+    const c = rail.scrollLeft + G.W / 2
+    cards.forEach((k, i) => {
+      if (!k.words) return
+      const off = Math.abs(G.mids[i] - c) / (G.cw + G.gap)
+      const t = G.wide || calm ? 1 : clamp(1 - off * 1.5)
+      if (!G.wide && off > 0.7 && slots[i].classList.contains('shut')) setShut(i, false) // a greyed card comes back once it has been swiped away
+      k.words.style.opacity = t
+      k.words.style.transform = `scale(${0.88 + 0.12 * t})`
+    })
+  }
+  let queued = false
+  rail.addEventListener('scroll', () => { if (queued || app.mode !== 'row') return; queued = true; requestAnimationFrame(() => { queued = false; paintWords() }) }, { passive: true })
+
+  /* State, plus a plain record of how each film behaved. */
+  const app = { i: -1, mode: 'row', paused: false, tl: null, dragging: false, want: 0 }
+  const film = EP.map(() => ({ started: false, firstAt: 0, played: 0, lastAt: 0, lastS: 0, dur: 0, gap: 0, stalls: 0, stallMs: 0, stallAt: 0, slow: 0, muted: null, ended: false, errors: [] }))
+  const player = i => SRD.players[i].player
+  const setMode = m => { app.mode = m; main.dataset.mode = m }
+
+  function setPaused(v) { app.paused = v; $('#toggle').textContent = v ? 'Play' : 'Pause'; wake() }
+  function paintTime(s) {
+    const f = film[app.i]; if (!f) return
+    const p = f.dur ? s / f.dur : 0
+    fillEl.style.transform = `scaleX(${clamp(p)})`
+    $('#now').textContent = fmt(s); $('#dur').textContent = fmt(f.dur)
+    seek.setAttribute('aria-valuenow', Math.round(p * 100)); seek.setAttribute('aria-valuetext', `${fmt(s)} of ${fmt(f.dur)}`)
+  }
+
+  // While a film is open a thumb moves nothing behind it. This listener exists only then, so it never slows the row or the page.
+  const stayPut = e => { if (!e.target.closest('.seek')) e.preventDefault() }
+
+  /* Opening a film. The film is already running when this begins: only the still moves. */
+  function open(i) {
+    const s = slots[i], c = cards[i], f = film[i], S = G.S, dy = G.dy
+    const hold = HOLD
+    app.i = i; f.started = true
+    setMode('opening'); setPaused(false)
+    doze(); holdBars(CHROME); paintTime(f.lastS || 0)
+    rail.classList.add('in'); s.classList.add('top')
+    addEventListener('touchmove', stayPut, { passive: false })
+    gsap.set(c.root, { visibility: 'visible' })
+    const tl = app.tl = gsap.timeline()
+    if (scrollY > 0) { const o = { y: scrollY }; tl.to(o, { y: 0, duration: D(0.9), ease: EASE, onUpdate: () => scrollTo(0, o.y) }, 0) } // someone tapped with the page part way down
+    tl.to(rail, { scrollLeft: G.lefts[i], duration: D(CAMERA), ease: EASE }, 0)
+      .to(c.root, { scale: S, y: dy, duration: D(CAMERA), ease: EASE }, 0)
+      .to(c.type, { opacity: 0, duration: D(0.24), ease: 'none' }, 0)
+      .to(c.img, { scale: 1.06, duration: D(hold + FADE), ease: 'none' }, 0)
+      .to(dark, { opacity: 1, duration: D(0.7), ease: 'none' }, 0)
+      .to([head, foot], { opacity: 0, duration: D(0.24), ease: 'none' }, 0)
+      .to(nav, { autoAlpha: 0, duration: D(0.24), ease: 'none' }, 0)
+    slots.forEach((o, j) => { if (j !== i) tl.to(o, { x: (j - i) * (G.cw + G.gap) * (S - 1), y: dy, scale: S, opacity: 0, duration: D(CAMERA), ease: EASE }, 0) })
+    tl.add(() => s.classList.add('open'), D(Math.min(CAMERA, hold)))
+      .to(c.root, { opacity: 0, duration: D(FADE), ease: 'none' }, hold)
+      .add(() => {
+        gsap.set(c.root, { visibility: 'hidden' })
+        slots.forEach((o, j) => { if (j !== i) { o.classList.add('gone'); gsap.set(o, { clearProps: 'transform' }) } })
+        document.documentElement.classList.add('lock')
+        setMode('film'); watchFrames.start()
+      })
+  }
+
+  /* Back to the row, only because someone asked or the film finished. */
+  function leave(to = app.i) {
+    const i = app.i, s = slots[i], c = cards[i], S = G.S, dy = G.dy
+    if (app.tl) app.tl.kill()
+    setMode('closing'); doze(); dropBars()
+    player(i).pause().catch(() => {})
+    gsap.set(c.root, { visibility: 'visible' })
+    slots.forEach((o, j) => { if (j !== i) { o.classList.remove('gone'); gsap.set(o, { x: (j - i) * (G.cw + G.gap) * (S - 1), y: dy, scale: S, opacity: 0 }) } })
+    const after = D(0.24)
+    const tl = app.tl = gsap.timeline({ onComplete: () => {
+      rail.classList.remove('in'); s.classList.remove('top')
+      document.documentElement.classList.remove('lock')
+      removeEventListener('touchmove', stayPut)
+      slots.forEach(o => gsap.set(o, { clearProps: 'transform,opacity' }))
+      app.i = -1; setMode('row'); paintWords()
+    } })
+    tl.to(c.root, { opacity: 1, duration: after, ease: 'none' }, 0)
+      .add(() => s.classList.remove('open'), after)
+      .to(c.root, { scale: 1, y: 0, duration: D(1.6), ease: EASE }, after)
+      .to(c.img, { scale: 1, duration: D(0.9), ease: EASE }, after)
+      .to(c.type, { opacity: 1, duration: D(0.4), ease: 'none' }, D(0.7))
+      .to(dark, { opacity: 0, duration: D(0.8), ease: 'none' }, after)
+      .to([head, foot], { opacity: 1, duration: D(0.5), ease: 'none' }, D(0.7))
+      .to(nav, { autoAlpha: 1, duration: D(0.5), ease: 'none' }, D(0.7))
+    slots.forEach((o, j) => { if (j !== i) tl.to(o, { x: 0, y: 0, scale: 1, opacity: 1, duration: D(1.6), ease: EASE }, after) })
+    if (to !== i) tl.to(rail, { scrollLeft: G.lefts[to], duration: D(1.6), ease: EASE }, after)
+  }
+
+  /* What Vimeo tells us. */
+  function onPlay(i) {
+    const f = film[i]
+    f.lastAt = 0
+    if (app.mode === 'row') {
+      slots[i].classList.add('ours') // this film has had its tap, so from now on a press can come to us
+      setTimeout(() => player(i).getMuted().then(m => { f.muted = m }).catch(() => {}), 1200)
+      open(i)
+    } else if (i === app.i) { setPaused(false); holdBars(CHROME); watchFrames.start() }
+  }
+  function onPause(i) { film[i].lastAt = 0; if (i === app.i && (app.mode === 'film' || app.mode === 'opening')) { setPaused(true); holdBars(CHROME) } }
+  function onEnded(i) { film[i].ended = true; if (i === app.i) { paintTime(film[i].dur); leave(Math.min(i + 1, slots.length - 1)) } }
+  function onTime(i, d) {
+    const f = film[i], t = performance.now()
+    f.dur = d.duration || f.dur
+    if (!f.firstAt) f.firstAt = t
+    if (f.lastAt) {
+      const dt = d.seconds - f.lastS
+      if (dt > 0 && dt < 1.2) f.played += dt
+      if (!f.stallAt) f.gap = Math.max(f.gap, t - f.lastAt)
+    }
+    f.lastAt = t; f.lastS = d.seconds
+    if (i === app.i && !app.dragging) paintTime(d.seconds)
+  }
+
+  const whenThree = setInterval(() => {
+    if (SRD.players.length !== 3) return
+    clearInterval(whenThree)
+    EP.forEach((e, i) => {
+      const p = player(i), f = film[i]
+      p.on('play', () => onPlay(i))
+      p.on('pause', () => onPause(i))
+      p.on('ended', () => onEnded(i))
+      p.on('timeupdate', d => onTime(i, d))
+      p.on('seeked', () => { f.lastAt = 0 })
+      p.on('bufferstart', () => { if (f.firstAt) { f.stalls++; f.stallAt = performance.now() } })
+      p.on('bufferend', () => { if (f.stallAt) { f.stallMs += performance.now() - f.stallAt; f.stallAt = 0 } f.lastAt = 0 })
+      p.on('error', e => f.errors.push(String(e && (e.name || e.message) || e).slice(0, 80)))
+      slots[i].querySelector('.hit').addEventListener('click', () => { if (app.mode === 'row') p.play().catch(() => {}) })
+    })
+  }, 60)
+  SRD.attachAll(rail)
+  SOON.forEach((e, k) => { const i = EP.length + k; slots[i].querySelector('.hit').addEventListener('click', () => { if (app.mode === 'row') setShut(i, !slots[i].classList.contains('shut')) }) })
+
+  /* Controls: asleep until someone asks. The canary line stays. */
+  let sleepT = 0, barsT = 0, barsUntil = 0
+  const hideBars = () => { if (!app.paused && ctl.classList.contains('idle') && performance.now() >= barsUntil) main.classList.remove('bars') }
+  function holdBars(ms) { if (!touch) return; barsUntil = Math.max(barsUntil, performance.now() + ms); main.classList.add('bars'); clearTimeout(barsT); barsT = setTimeout(hideBars, barsUntil - performance.now() + 20) }
+  function dropBars() { clearTimeout(barsT); barsUntil = 0; main.classList.remove('bars') }
+  function wake() { clearTimeout(sleepT); ctl.classList.remove('idle'); if (touch) main.classList.add('bars'); if (!app.paused) sleepT = setTimeout(() => { ctl.classList.add('idle'); hideBars() }, STAY) }
+  function doze() { clearTimeout(sleepT); ctl.classList.add('idle'); hideBars() }
+  $('#surface').addEventListener('click', () => { ctl.classList.contains('idle') ? wake() : doze() })
+  main.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && app.mode !== 'row') wake() }, { passive: true })
+  $('#toggle').addEventListener('click', () => { const p = player(app.i); (app.paused ? p.play() : p.pause()).catch(() => {}) })
+  $('#back').addEventListener('click', () => leave())
+
+  const seekTo = e => { const f = film[app.i], r = seek.getBoundingClientRect(); if (!f || !f.dur) return; app.want = clamp((e.clientX - r.left) / r.width) * f.dur; paintTime(app.want) }
+  const seekDone = () => { if (!app.dragging) return; app.dragging = false; if (film[app.i] && film[app.i].firstAt) { film[app.i].lastAt = 0; player(app.i).setCurrentTime(app.want).catch(() => {}) } holdBars(CHROME); wake() }
+  seek.addEventListener('pointerdown', e => { seek.setPointerCapture(e.pointerId); app.dragging = true; clearTimeout(sleepT); seekTo(e) })
+  seek.addEventListener('pointermove', e => { if (app.dragging) seekTo(e) })
+  seek.addEventListener('pointerup', seekDone)
+  seek.addEventListener('pointercancel', seekDone)
+  addEventListener('keydown', e => {
+    if (app.mode === 'row') return
+    if (e.key === 'Escape') leave()
+    if (e.key === ' ' && !e.target.closest('button')) { e.preventDefault(); $('#toggle').click() }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const f = film[app.i]; player(app.i).setCurrentTime(clamp(f.lastS + (e.key === 'ArrowRight' ? 5 : -5), 0, f.dur || 0)).catch(() => {}) }
+  })
+
+  /* A quiet count of slow frames on this page while a film plays, to tell the page apart from the stream. */
+  const watchFrames = { on: false, last: 0, start() { if (this.on) return; this.on = true; this.last = 0; requestAnimationFrame(t => this.tick(t)) }, tick(t) { if (app.mode !== 'film' || app.paused) { this.on = false; return } if (this.last && t - this.last > 100) film[app.i].slow++; this.last = t; requestAnimationFrame(n => this.tick(n)) } }
+
+  /* The test log: nothing to do unless something goes wrong. */
+  function browserName() {
+    const u = navigator.userAgent, os = u.match(/OS (\d+)[_.](\d+)/)
+    const app2 = /Instagram/i.test(u) ? 'Instagram' : /FBAN|FBAV/i.test(u) ? 'Facebook' : /CriOS/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : 'Other'
+    return `${app2}, ${os ? `iOS ${os[1]}.${os[2]}` : /Android/i.test(u) ? 'Android' : 'computer'}`
+  }
+  $('#openlog').addEventListener('click', () => {
+    const box = $('#log'), loads = [...document.querySelectorAll('iframe')].length
+    box.innerHTML = `<button class="close" type="button">Close</button><h2>Test log</h2><dl><dt>Browser</dt><dd>${browserName()}</dd><dt>Screen</dt><dd>${G.W} by ${G.H}</dd><dt>Film frames</dt><dd>${loads}</dd></dl>` + EP.map((e, i) => {
+      const f = film[i]
+      if (!f.started) return `<h3>${e.name}</h3><dl><dt>Played</dt><dd>Not tried</dd></dl>`
+      const rows = [['Played', `${Math.round(f.played)} s of ${Math.round(f.dur)} s`], ['Reached the end', f.ended ? 'Yes' : 'No'], ['Muted', f.muted === null ? 'Unknown' : f.muted ? 'Yes' : 'No'], ['Stalls', `${f.stalls}${f.stalls ? `, ${(f.stallMs / 1000).toFixed(1)} s in all` : ''}`], ['Longest gap', `${(f.gap / 1000).toFixed(2)} s`], ['Slow page frames', f.slow]]
+      if (f.errors.length) rows.push(['Errors', f.errors.slice(0, 2).join('; ')])
+      return `<h3>${e.name}</h3><dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`
+    }).join('')
+    box.hidden = false
+    box.querySelector('.close').addEventListener('click', () => { box.hidden = true })
+  })
+
+  /* The two links under the row. */
+  document.querySelectorAll('[data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $(a.getAttribute('href')).scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }) }))
+
+  /* Sharing. The link carries src=share, so the sheet can show how many people came this way. It never carries who shared it.
+     Clicks count through data-srd-link, the tracker's own way of counting links. */
+  const SHARE_LINE = 'Everybody’s talking about homelessness. Nobody’s listening to the people living it.'
+  const SHARE_TEXT = `${SHARE_LINE} Watch Skid Row Diaries:`
+  const SHARE_URL = `${location.origin}${location.pathname}?src=share`
+  const enc = encodeURIComponent
+  $('#shareline').textContent = SHARE_LINE
+  $('#s-text').href = `sms:?&body=${enc(`${SHARE_TEXT} ${SHARE_URL}`)}`
+  $('#s-mail').href = `mailto:?subject=${enc('Watch Skid Row Diaries')}&body=${enc(`${SHARE_TEXT}\n\n${SHARE_URL}`)}`
+  $('#s-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(SHARE_URL)}`
+  $('#s-x').href = `https://x.com/intent/post?text=${enc(SHARE_TEXT)}&url=${enc(SHARE_URL)}`
+  const said = t => { $('#said').textContent = t }
+  async function copyMessage() {
+    const text = `${SHARE_TEXT} ${SHARE_URL}`
+    try { await navigator.clipboard.writeText(text) }
+    catch { // Some in-app browsers refuse the clipboard call, so fall back to the old way.
+      const t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0'
+      document.body.append(t); t.select(); t.setSelectionRange(0, text.length)
+      const ok = document.execCommand('copy'); t.remove()
+      if (!ok) return said('Press and hold to copy the address from the top of this page.')
+    }
+    said('Copied. Paste it into any message or post.')
+  }
+  $('#s-copy').addEventListener('click', copyMessage)
+  $('#sharebtn').addEventListener('click', async () => {
+    if (!navigator.share) return copyMessage() // Instagram's own browser has no share sheet
+    try { await navigator.share({ title: 'Skid Row Diaries', text: SHARE_TEXT, url: SHARE_URL }) }
+    catch (e) { if (e.name !== 'AbortError') copyMessage() }
+  })
+
+  layout()
+  document.fonts && document.fonts.ready.then(() => layout())
+  let rT = 0
+  addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(layout, 120) })
+  window.__round4 = { app, film }
+</script>
+</body>
+</html>
