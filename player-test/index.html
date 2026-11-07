@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Player Round 3</title>
+<title>Player Round 4</title>
 <meta name="description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
 <!-- The card any phone or platform shows when this link is shared. The address is the test site for now; the site's Seo component takes the same values for /watch. -->
 <meta property="og:type" content="website">
@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@700&display=swap">
 <style>
-  /* Player Round 3: the Row as a page of the website, with the site's header and footer, the Mission's ask and a way to share it.
+  /* Player Round 4: Round 3 with six cards in black and white. The film code is Round 3's, untouched. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
      Rule of the build: the Vimeo frame never moves or scales. It sits behind its card at true size, where it will play on the screen, inside the row.
      The camera move belongs to the still alone, so once a film is running it is a plain embed with no moving layer over it, only the bars when asked for.
      Nothing is sent to the viewer sheet and no identity is stored. */
@@ -81,12 +81,30 @@
   .scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 66%; background: linear-gradient(0deg, rgb(8 8 8 / 0.9) 0%, rgb(8 8 8 / 0.72) 42%, rgb(8 8 8 / 0) 100%); }
   .no { position: absolute; right: 7cqw; top: 6cqw; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8cqw; text-shadow: 0 1px 12px rgb(0 0 0 / 0.6); }
   .no small { font-weight: 500; font-size: max(12px, 3cqw); line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); margin-right: -0.2em; }
-  .no b { font-family: var(--display); font-weight: 700; font-size: 10cqw; line-height: 1; color: var(--ink); }
+  .no b { font-family: var(--display); font-weight: 700; font-size: 10cqw; line-height: 1; color: var(--canary-ink); }
   .txt { position: absolute; left: 7cqw; right: 7cqw; bottom: 7cqw; display: flex; flex-direction: column; align-items: flex-start; }
-  .words { hanging-punctuation: first; margin: 0 0 2.4cqw; font-style: italic; font-size: max(17px, 7.2cqw); line-height: 1.16; color: var(--ink); transform-origin: 0 100%; text-wrap: pretty; }
-  .nm { margin: 0 0 3.6cqw; font-family: var(--display); font-weight: 700; font-size: 7.4cqw; line-height: 1.1; color: var(--canary-ink); white-space: nowrap; }
+  /* Each line fills the card before it breaks. Only a very small phone needs a third line, and there the wrap keeps the last line from being one word. */
+  .words { hanging-punctuation: first; margin: 0 -1cqw 2.4cqw 0; font-style: italic; font-size: max(17px, 7cqw); line-height: 1.16; color: var(--ink); transform-origin: 0 100%; text-wrap: wrap; }
+  @container (max-width: 242px) { .words { text-wrap: pretty; } }
+  .nm { margin: 0 0 3.6cqw; font-family: var(--display); font-weight: 700; font-size: 8.4cqw; line-height: 1.1; color: var(--canary-ink); white-space: nowrap; }
   /* The whole card is the tap target, so on a small phone this sign can give up height to keep the quote off the face. */
   .btn { display: flex; align-items: center; justify-content: center; width: 100%; height: clamp(40px, 18cqw, 56px); font-weight: 600; font-size: 17px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--canary); }
+
+  /* Episodes still to come. There is no frame behind these, so a tap only answers: the portrait goes grey and the sign says so. */
+  .slot.soon .hit { display: block; }
+  .wash { position: absolute; inset: 0; background: rgb(112 111 107); opacity: 0; transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .slot.shut .wash { opacity: 0.82; }
+
+  /* The last card closes the row, with the stacked logo: each line set to the same width, as on the opening title. */
+  .slot.end .card { background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; box-shadow: inset 0 0 0 1px var(--line); }
+  .close { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13cqw; text-align: center; }
+  .close p { margin: 0; font-weight: 600; font-size: 10.2cqw; line-height: 1.12; color: var(--ink); }
+  .close p span { display: block; color: var(--canary-ink); }
+  .lg { display: block; width: 40cqw; font-family: var(--display); font-weight: 700; color: var(--canary-ink); text-align: left; }
+  .lg span { display: block; white-space: nowrap; }
+  .lg .s { font-size: 19.96cqw; line-height: 0.87; margin-left: -1.1cqw; }
+  .lg .r { font-size: 20.02cqw; line-height: 0.87; margin-left: -0.68cqw; }
+  .lg .d { font-size: 12.17cqw; line-height: 1; margin: 1.4cqw 0 0 -0.41cqw; color: var(--ink); }
 
   /* After a film has started once, or on a computer, a press belongs to us. */
   .hit { position: absolute; inset: 0; z-index: 2; display: none; background: none; border: 0; padding: 0; cursor: pointer; }
@@ -118,7 +136,7 @@
   .ctl.idle .veil, .ctl.idle .bar { opacity: 0; pointer-events: none; }
   .ctl.idle .seek { pointer-events: none; }
 
-  @media (prefers-reduced-motion: reduce) { .band { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .band, .wash { transition: none; } }
 
   .log { position: fixed; z-index: 40; inset: 0; overflow-y: auto; background: var(--ground) url('img/asphalt.webp') 0 0 / 512px 512px; padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
   /* Below the row. The Mission's ask uses the link style of the Mission credit on Home, and it stays about the Mission, never about the person just watched. */
@@ -189,7 +207,7 @@
       <button class="c" type="button" id="toggle">Pause</button>
       <span class="time"><span id="now">0:00</span> / <span id="dur">0:00</span></span>
       <span class="sp"></span>
-      <button class="c" type="button" id="back">All three</button>
+      <button class="c" type="button" id="back">Back</button>
     </div>
     <div class="seek" id="seek" role="slider" tabindex="0" aria-label="Position in the film" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="track"><span class="fill" id="fill"></span></span></div>
   </div>
@@ -238,8 +256,13 @@
 
   const EP = [
     { n: '01', id: '1243879941', name: 'Michael Steger', words: '“I would give anyone the shirt off my back if they ever needed it.”', img: 'michael' },
-    { n: '02', id: '1243884159', name: 'Whitney Wiley', words: '“I get a lot of attention. I don’t like it.”', img: 'whitney' },
+    { n: '02', id: '1243884159', name: 'Whitney Wiley', words: '“I get a lot of attention.<br>I don’t like it.”', img: 'whitney' },
     { n: '03', id: '1243931242', name: 'Ronald Coulter', words: '“This dude named Tony Harper murdered my whole family.”', img: 'ronald' },
+  ]
+  // On the row, not yet in the film list: no frame, no tracking, nothing plays.
+  const SOON = [
+    { n: '04', name: 'Ashley Owen', words: '“Believe it or not, there’s love down here. I’ve seen it.”', img: 'ashley' },
+    { n: '05', name: 'Isiah James', words: '“How can I wake up happy and do something I love every day?”', img: 'isiah' },
   ]
   const $ = q => document.querySelector(q)
   const nav = $('#nav'), main = $('#main'), rail = $('#rail'), dark = $('#dark'), head = $('#head'), foot = $('#foot'), ctl = $('#ctl'), seek = $('#seek'), fillEl = $('#fill')
@@ -255,21 +278,35 @@
   if (touch) main.classList.add('touch')
 
   /* The row is built once and never rebuilt, so the frames are never remounted. */
+  const type = e => `
+        <div class="type">
+          <div class="scrim"></div>
+          <div class="no"><small>Episode</small><b>${e.n}</b></div>
+          <div class="txt">${e.words ? `<p class="words">${e.words}</p>` : ''}<p class="nm">${e.name}</p><span class="btn">Play</span></div>
+        </div>`
   rail.innerHTML = EP.map((e, i) => `
     <article class="slot${touch ? '' : ' ours'}" data-i="${i}">
       <div class="clip"><div class="film"><iframe src="https://player.vimeo.com/video/${e.id}?badge=0&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;dnt=1${touch ? '' : '&amp;controls=0'}" data-srd-video="${e.id}" data-srd-title="${e.name}" title="${e.name}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div>
       <button class="hit" type="button" aria-label="Play episode ${e.n}, ${e.name}"></button>
       <div class="card">
-        <img src="img/${e.img}.webp" alt="Portrait of ${e.name}." decoding="async">
-        <div class="type">
-          <div class="scrim"></div>
-          <div class="no"><small>Episode</small><b>${e.n}</b></div>
-          <div class="txt">${e.words ? `<p class="words">${e.words}</p>` : ''}<p class="nm">${e.name}</p><span class="btn">Play</span></div>
-        </div>
+        <img src="img/${e.img}.webp" alt="Portrait of ${e.name}." decoding="async">${type(e)}
       </div>
-    </article>`).join('')
+    </article>`).join('') + SOON.map((e, k) => `
+    <article class="slot soon" data-i="${EP.length + k}">
+      <div class="clip"></div>
+      <button class="hit" type="button" aria-label="Episode ${e.n}, ${e.name}. Coming soon."></button>
+      <div class="card">
+        <img src="img/${e.img}.webp" alt="Portrait of ${e.name}." decoding="async">
+        <i class="wash"></i>${type(e)}
+      </div>
+    </article>`).join('') + `
+    <article class="slot end" data-i="${EP.length + SOON.length}">
+      <div class="clip"></div>
+      <div class="card"><div class="close"><p>100 Portraits <span>+</span> 100 Conversations</p><div class="lg" role="img" aria-label="Skid Row Diaries"><span class="s">Skid</span><span class="r">Row</span><span class="d">Diaries</span></div></div></div>
+    </article>`
   const slots = [...rail.querySelectorAll('.slot')]
-  const cards = slots.map(s => ({ root: s.querySelector('.card'), img: s.querySelector('img'), type: s.querySelector('.type'), words: s.querySelector('.words') }))
+  const cards = slots.map(s => ({ root: s.querySelector('.card'), img: s.querySelector('img'), type: s.querySelector('.type'), words: s.querySelector('.words'), btn: s.querySelector('.btn') }))
+  const setShut = (i, on) => { slots[i].classList.toggle('shut', on); cards[i].btn.textContent = on ? 'Coming Soon' : 'Play' }
 
   /* Sizes, always whole pixels, so a film's edge can never show past its card. */
   let G = {}
@@ -295,7 +332,9 @@
     const c = rail.scrollLeft + G.W / 2
     cards.forEach((k, i) => {
       if (!k.words) return
-      const t = G.wide || calm ? 1 : clamp(1 - Math.abs(G.mids[i] - c) / (G.cw + G.gap) * 1.5)
+      const off = Math.abs(G.mids[i] - c) / (G.cw + G.gap)
+      const t = G.wide || calm ? 1 : clamp(1 - off * 1.5)
+      if (!G.wide && off > 0.7 && slots[i].classList.contains('shut')) setShut(i, false) // a greyed card comes back once it has been swiped away
       k.words.style.opacity = t
       k.words.style.transform = `scale(${0.88 + 0.12 * t})`
     })
@@ -390,7 +429,7 @@
     } else if (i === app.i) { setPaused(false); holdBars(CHROME); watchFrames.start() }
   }
   function onPause(i) { film[i].lastAt = 0; if (i === app.i && (app.mode === 'film' || app.mode === 'opening')) { setPaused(true); holdBars(CHROME) } }
-  function onEnded(i) { film[i].ended = true; if (i === app.i) { paintTime(film[i].dur); leave(Math.min(i + 1, EP.length - 1)) } }
+  function onEnded(i) { film[i].ended = true; if (i === app.i) { paintTime(film[i].dur); leave(Math.min(i + 1, slots.length - 1)) } }
   function onTime(i, d) {
     const f = film[i], t = performance.now()
     f.dur = d.duration || f.dur
@@ -421,6 +460,7 @@
     })
   }, 60)
   SRD.attachAll(rail)
+  SOON.forEach((e, k) => { const i = EP.length + k; slots[i].querySelector('.hit').addEventListener('click', () => { if (app.mode === 'row') setShut(i, !slots[i].classList.contains('shut')) }) })
 
   /* Controls: asleep until someone asks. The canary line stays. */
   let sleepT = 0, barsT = 0, barsUntil = 0
@@ -506,7 +546,7 @@
   document.fonts && document.fonts.ready.then(() => layout())
   let rT = 0
   addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(layout, 120) })
-  window.__round3 = { app, film }
+  window.__round4 = { app, film }
 </script>
 </body>
 </html>
