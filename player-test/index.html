@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Player Round 6</title>
+<title>Player Round 7</title>
 <meta name="description" content="Everybody’s talking about homelessness. Nobody’s listening to the people living it. Three stories from Skid Row, in their own words.">
 <!-- The card any phone or platform shows when this link is shared. The address is the test site for now; the site's Seo component takes the same values for /watch. -->
 <meta property="og:type" content="website">
@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@700&display=swap">
 <style>
-  /* Player Round 6: the sign-up form, one eyeline across the portraits, and Coming Soon in the middle of the frame. The film code is Round 5's; the frames now arrive only once someone is known. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
+  /* Player Round 7: Round 6 with the quotes raised off the yellow bar and the consent line brought in step with the Privacy Policy. The film code is Round 6's. Episodes 04 and 05 have no frame yet, and the sixth card closes the row.
      Rule of the build: the Vimeo frame never moves or scales. It sits behind its card at true size, where it will play on the screen, inside the row.
      The camera move belongs to the still alone, so once a film is running it is a plain embed with no moving layer over it, only the bars when asked for.
      Nothing is sent to the viewer sheet and no identity is stored. */
@@ -86,7 +86,7 @@
   .no b { font-family: var(--display); font-weight: 700; font-size: 10cqw; line-height: 1; color: var(--canary-ink); }
   /* The bar sits 4cqw from the card on three sides, with the name centred in it. The quote shares the bar's left edge. */
   .txt { position: absolute; left: 4cqw; right: 4cqw; bottom: 4cqw; display: flex; flex-direction: column; }
-  .words { margin: 0 0 3.4cqw; font-style: italic; font-size: 10.1cqw; line-height: 1.1; color: var(--ink); transform-origin: 0 100%; } /* the line breaks are set by hand in the data, so every phone reads the same */
+  .words { margin: 0 0 6cqw; font-style: italic; font-size: 10.1cqw; line-height: 1.1; color: var(--ink); transform-origin: 0 100%; } /* the line breaks are set by hand in the data, so every phone reads the same */
   /* The whole card is the tap target, so the bar carries the name, and on a small phone it can give up height to keep the quote off the face. */
   .btn { display: flex; align-items: center; justify-content: center; width: 100%; height: clamp(40px, 18cqw, 56px); padding-inline: 4cqw; font-family: var(--display); font-weight: 700; font-size: 8.4cqw; line-height: 1; white-space: nowrap; color: var(--black); background: var(--canary); }
 
@@ -250,7 +250,7 @@
       <p class="err" id="e-email" role="alert" hidden></p>
     </div>
     <button class="act" type="submit">Watch Now</button>
-    <p class="agree">By continuing you agree to our <a href="https://srd-next.netlify.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and to occasional emails about new stories.</p>
+    <p class="agree">By continuing you agree to our <a href="https://srd-next.netlify.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, including tracking what you watch, and to occasional emails about new stories and offers.</p>
   </form>
 </section>
 
@@ -621,7 +621,7 @@
   document.fonts && document.fonts.ready.then(() => layout())
   let rT = 0
   addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(layout, 120) })
-  window.__round6 = { app, film }
+  window.__round7 = { app, film }
 </script>
 </body>
 </html>
